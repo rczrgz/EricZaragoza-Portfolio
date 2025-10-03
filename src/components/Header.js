@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'; // Hamburger and close icons
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -12,7 +12,28 @@ const navItems = [
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false); // State for sticky header background
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Detect current theme on mount and when it changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+
+    // Check initially
+    checkTheme();
+
+    // Create observer to watch for class changes on html element
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Handle scroll to change header background
   useEffect(() => {
@@ -41,18 +62,18 @@ const Header = () => {
       className={`fixed top-0 left-0 right-0 z-40 p-4 transition-all duration-300
                  ${isScrolled
                     ? 'bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm shadow-md'
-                    : 'bg-transparent dark:bg-transparent' // Transparent when at top
+                    : 'bg-transparent dark:bg-transparent'
                   }`}
     >
       <nav className="container mx-auto flex items-center justify-between">
-        {/* Logo/Brand Name (Optional) */}
+        {/* Logo/Brand Name */}
         <div className="flex-shrink-0">
           <a href="#home" className="text-2xl font-bold text-primary-light dark:text-primary-dark">
-             <img 
-      src="/EZ.png" 
-      alt="EZ Logo" 
-      className="h-8 md:h-12 lg:h-20 w-auto"
-    />
+            <img 
+              src={isDarkMode ? "/darklogo.png" : "/lightlogo.png"}
+              alt="EZ Logo" 
+              className="h-8 md:h-12 lg:h-20 w-auto transition-opacity duration-300"
+            />
           </a>
         </div>
 
