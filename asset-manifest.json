@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/EricZaragoza-Portfolio/static/css/main.89d1a318.css",
+    "main.js": "/EricZaragoza-Portfolio/static/js/main.cd1671d9.js",
+    "static/js/453.8717ebfe.chunk.js": "/EricZaragoza-Portfolio/static/js/453.8717ebfe.chunk.js",
+    "index.html": "/EricZaragoza-Portfolio/index.html",
+    "main.89d1a318.css.map": "/EricZaragoza-Portfolio/static/css/main.89d1a318.css.map",
+    "main.cd1671d9.js.map": "/EricZaragoza-Portfolio/static/js/main.cd1671d9.js.map",
+    "453.8717ebfe.chunk.js.map": "/EricZaragoza-Portfolio/static/js/453.8717ebfe.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.89d1a318.css",
+    "static/js/main.cd1671d9.js"
+  ]
+}
