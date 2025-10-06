@@ -49,13 +49,14 @@ const Header = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-50 p-4 transition-all duration-300
-        ${isScrolled || isMenuOpen
-          ? 'bg-white dark:bg-gray-900 shadow-md'
-          : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-md'
+      className={`fixed top-0 left-0 right-0 z-[100] p-4 transition-all duration-300
+        ${
+          isScrolled || isMenuOpen
+            ? 'bg-white dark:bg-gray-900 shadow-md'
+            : 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md'
         }`}
     >
-      <nav className="container mx-auto flex items-center justify-between relative z-50">
+      <nav className="container mx-auto flex items-center justify-between relative">
         {/* Logo */}
         <div className="flex-shrink-0">
           <a href="#home" className="text-2xl font-bold">
@@ -88,8 +89,8 @@ const Header = () => {
           ))}
         </ul>
 
-        {/* Mobile Menu Button (Always visible) */}
-        <div className="md:hidden flex items-center z-[60]">
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center z-[120]">
           <motion.button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-gray-800 dark:text-gray-100 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -106,7 +107,7 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay (Slide from Right) */}
+      {/* Mobile Menu (Slide from Right) */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -114,7 +115,7 @@ const Header = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-            className="fixed inset-0 z-40 flex flex-col justify-center items-center
+            className="fixed inset-0 z-[110] flex flex-col justify-center items-center
                        bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
           >
             <ul className="flex flex-col items-center space-y-8">
