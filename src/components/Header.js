@@ -15,63 +15,53 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Detect current theme on mount and when it changes
+  // Detect dark mode
   useEffect(() => {
     const checkTheme = () => {
       const isDark = document.documentElement.classList.contains('dark');
       setIsDarkMode(isDark);
     };
-
-    // Check initially
     checkTheme();
-
-    // Create observer to watch for class changes on html element
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class']
+      attributeFilter: ['class'],
     });
-
     return () => observer.disconnect();
   }, []);
 
-  // Handle scroll to change header background
+  // Detect scroll
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menu when a nav item is clicked (for mobile)
-  const handleNavLinkClick = () => {
-    setIsMenuOpen(false);
-  };
+  // Disable body scroll when menu is open
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+  }, [isMenuOpen]);
+
+  const handleNavLinkClick = () => setIsMenuOpen(false);
 
   return (
     <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-      className={`fixed top-0 left-0 right-0 z-40 p-4 transition-all duration-300
-                 ${isScrolled
-                    ? 'bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm shadow-md'
-                    : 'bg-transparent dark:bg-transparent'
-                  }`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className={`fixed top-0 left-0 right-0 z-50 p-4 transition-all duration-300
+        ${isScrolled || isMenuOpen
+          ? 'bg-white dark:bg-gray-900 shadow-md'
+          : 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-md'
+        }`}
     >
-      <nav className="container mx-auto flex items-center justify-between">
-        {/* Logo/Brand Name */}
+      <nav className="container mx-auto flex items-center justify-between relative z-50">
+        {/* Logo */}
         <div className="flex-shrink-0">
-          <a href="#home" className="text-2xl font-bold text-primary-light dark:text-primary-dark">
-            <img 
-              src={isDarkMode ? "/darklogo.png" : "/lightlogo.png"}
-              alt="EZ Logo" 
+          <a href="#home" className="text-2xl font-bold">
+            <img
+              src={isDarkMode ? '/darklogo.png' : '/lightlogo.png'}
+              alt="EZ Logo"
               className="h-8 md:h-12 lg:h-20 w-auto transition-opacity duration-300"
             />
           </a>
@@ -82,29 +72,27 @@ const Header = () => {
           {navItems.map((item, index) => (
             <motion.li
               key={item.name}
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.05 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
             >
               <a
                 href={item.href}
                 onClick={handleNavLinkClick}
-                className="text-lg font-semibold hover:text-primary-light dark:hover:text-primary-dark
-                           transition-colors duration-300 relative group"
+                className="text-lg font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-500 dark:hover:text-blue-400 relative group transition-colors duration-300"
               >
                 {item.name}
-                <span className="absolute left-0 bottom-0 w-full h-0.5 bg-primary-light dark:bg-primary-dark scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                <span className="absolute left-0 bottom-0 w-full h-0.5 bg-blue-500 dark:bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
               </a>
             </motion.li>
           ))}
         </ul>
 
-        {/* Mobile Menu Toggle Button */}
-        <div className="md:hidden flex items-center">
+        {/* Mobile Menu Button (Always visible) */}
+        <div className="md:hidden flex items-center z-[60]">
           <motion.button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-text-light dark:text-text-dark p-2 rounded-md
-                       focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark"
+            className="text-gray-800 dark:text-gray-100 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             aria-label="Toggle navigation menu"
@@ -118,29 +106,29 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu (Off-canvas) */}
+      {/* Mobile Menu Overlay (Slide from Right) */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-            className="md:hidden fixed inset-0 top-16 bg-card-light dark:bg-card-dark z-30 p-6 shadow-xl"
+            className="fixed inset-0 z-40 flex flex-col justify-center items-center
+                       bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
           >
-            <ul className="flex flex-col space-y-6">
+            <ul className="flex flex-col items-center space-y-8">
               {navItems.map((item, index) => (
                 <motion.li
                   key={item.name}
-                  initial={{ opacity: 0, x: 50 }}
+                  initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * index, type: 'spring', stiffness: 100 }}
+                  transition={{ delay: 0.1 * index }}
                 >
                   <a
                     href={item.href}
                     onClick={handleNavLinkClick}
-                    className="block text-2xl font-bold text-text-light dark:text-text-dark
-                               hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-300 py-2"
+                    className="text-3xl font-bold hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
                   >
                     {item.name}
                   </a>
