@@ -41,14 +41,14 @@ const Contact = () => {
 
     emailjs
       .send(
-        'service_6reclcr',
-        'template_q21p2zj',
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         {
           name: formData.name,
           email: formData.email,
           message: formData.message,
         },
-        'Js56nw3O7QmVHhdnj'
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
       )
       .then(() => {
         setIsSending(false);
