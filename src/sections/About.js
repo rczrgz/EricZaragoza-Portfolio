@@ -96,17 +96,6 @@ const About = () => {
                 transition={{ duration: 0.3 }}
               />
               
-              {/* Tap hint for mobile */}
-              {!isHovered && (
-                <motion.div
-                  className="absolute bottom-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm md:hidden"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1 }}
-                >
-                  Tap me!
-                </motion.div>
-              )}
             </div>
           </motion.div>
         </div>
