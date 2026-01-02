@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LinkIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { ExternalLink, Eye, X } from 'lucide-react';
 
 const projects = [
   {
@@ -47,79 +47,103 @@ const ProjectModal = ({ project, onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 50, opacity: 0 }}
-        className="bg-card-light dark:bg-card-dark rounded-xl shadow-2xl p-6 md:p-8 max-w-2xl w-full mx-auto"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-6">
-          {project.video && !project.image && (
-            <video
-              src={project.video}
-              controls
-              className="rounded-lg w-full h-auto object-cover"
-            />
-          )}
-          {project.image && !project.video && (
-            <img
-              src={project.image}
-              alt={project.title}
-              className="rounded-lg w-full h-auto object-cover"
-            />
-          )}
-          {project.image && project.video && (
-            <>
+        {/* Close Button */}
+        <div className="sticky top-0 right-0 z-10 flex justify-end p-4 bg-gradient-to-b from-black/50 to-transparent">
+          <button
+            onClick={onClose}
+            className="bg-white/90 dark:bg-gray-800/90 rounded-full p-2 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+          >
+            <X className="h-6 w-6 text-gray-800 dark:text-gray-200" />
+          </button>
+        </div>
+
+        {/* Media Content */}
+        <div className="px-4 md:px-6 -mt-16">
+          <div className="rounded-xl overflow-hidden shadow-lg mb-4">
+            {project.image && (
               <img
                 src={project.image}
                 alt={project.title}
-                className="rounded-lg mb-4 w-full h-auto object-cover"
+                className="w-full h-48 md:h-64 object-cover"
               />
+            )}
+          </div>
+
+          {project.video && (
+            <div className="rounded-xl overflow-hidden shadow-lg mb-4">
               <video
                 src={project.video}
                 controls
-                className="rounded-lg w-full h-auto object-cover"
+                controlsList="nodownload"
+                className="w-full h-48 md:h-64 object-cover"
+                style={{ objectFit: 'contain' }}
+                onLoadedMetadata={(e) => {
+                  e.target.style.objectFit = 'contain';
+                }}
               />
-            </>
+            </div>
           )}
         </div>
 
-        <h3 className="text-3xl font-bold mb-4 text-primary-light dark:text-primary-dark">{project.title}</h3>
-        <p className="text-text-light dark:text-text-dark mb-4 text-lg">{project.description}</p>
-        <div className="flex flex-wrap gap-2 mb-6">
-          {project.tags.map((tag) => (
-            <span key={tag} className="px-3 py-1 rounded-full text-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-              {tag}
-            </span>
-          ))}
-        </div>
-        <div className="flex justify-end gap-4">
-          <a
-            href={project.liveLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-primary-light dark:bg-primary-dark text-white rounded-lg hover:bg-opacity-80 transition-colors duration-300"
-          >
-            <LinkIcon className="h-5 w-5" /> Live Demo
-          </a>
-          <a
-            href={project.githubLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-opacity-80 transition-colors duration-300"
-          >
-            <EyeIcon className="h-5 w-5" /> GitHub
-          </a>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300"
-          >
-            Close
-          </button>
+        {/* Content */}
+        <div className="px-4 md:px-6 pb-6">
+          <h3 className="text-2xl md:text-3xl font-bold mb-3 text-gray-900 dark:text-white">
+            {project.title}
+          </h3>
+          
+          <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm md:text-base leading-relaxed">
+            {project.description}
+          </p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {project.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3">
+            {project.liveLink !== '#' && (
+              <a
+                href={project.liveLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <ExternalLink className="h-5 w-5" />
+                <span>Live Demo</span>
+              </a>
+            )}
+            
+            {project.githubLink !== '#' && (
+              <a
+                href={project.githubLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+              >
+                <Eye className="h-5 w-5" />
+                <span>GitHub</span>
+              </a>
+            )}
+          </div>
         </div>
       </motion.div>
     </motion.div>
@@ -129,81 +153,108 @@ const ProjectModal = ({ project, onClose }) => {
 const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } },
-  };
-
   return (
-    <section id="projects" className="py-20 bg-card-light dark:bg-card-dark">
+    <section id='projects' className="py-20 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="container mx-auto px-4">
-        <motion.h2
-          className="text-4xl font-extrabold text-center mb-12"
-          initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8 }}
-        >
-          My <span className="text-primary-light dark:text-primary-dark">Projects</span>
-        </motion.h2>
-
+        {/* Section Header */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={containerVariants}
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            My <span className="text-blue-600 dark:text-blue-400">Projects</span>
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
+            A showcase of my recent work and personal projects
+          </p>
+        </motion.div>
+
+        {/* Projects Grid */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+          }}
         >
           {projects.map((project) => (
             <motion.div
               key={project.id}
-              className="relative rounded-xl overflow-hidden shadow-lg bg-card-light dark:bg-card-dark
-                         group cursor-pointer hover:shadow-xl transition-all duration-300"
-              variants={itemVariants}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0 },
+              }}
+              whileHover={{ y: -8 }}
+              className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-gray-800"
               onClick={() => setSelectedProject(project)}
             >
-              {project.video ? (
-                <video
-                  src={project.video}
-                  className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  controls
-                />
-              ) : (
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-500"
-                />
-              )}
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                <div>
-                  <h3 className="text-white text-2xl font-bold mb-2">{project.title}</h3>
-                  <p className="text-gray-200 text-sm mb-3">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-0.5 rounded-full text-xs bg-primary-light dark:bg-primary-dark text-white">
-                        {tag}
-                      </span>
-                    ))}
+              {/* Project Image/Video */}
+              <div className="relative h-64 overflow-hidden">
+                {project.video && !project.image ? (
+                  <video
+                    src={project.video}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    muted
+                    loop
+                  />
+                ) : (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                )}
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 className="text-white text-xl font-bold mb-2">{project.title}</h3>
+                    <p className="text-gray-200 text-sm line-clamp-2">{project.description}</p>
                   </div>
+                </div>
+              </div>
+
+              {/* Card Footer */}
+              <div className="p-5">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {project.title}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.slice(0, 3).map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {project.tags.length > 3 && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                      +{project.tags.length - 3}
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>
           ))}
         </motion.div>
-
-        <AnimatePresence>
-          {selectedProject && <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />}
-        </AnimatePresence>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 };
