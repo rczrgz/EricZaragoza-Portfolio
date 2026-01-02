@@ -58,7 +58,7 @@ const projects = [
   title: 'Mamas & Papas',
   description: 'Custom WooCommerce development and maintenance for Mamas & Papas PH, focusing on shipping rule management, delivery method toggling, bug fixes, and performance optimizations to support high-traffic retail operations.',
   image: 'project6.png',
-  tags: ['WordPress','WooCommerce','Shipping Rules','E-commerce Optimization','PHP','jQuery'],
+  tags: ['Shopify','Shipping Rules','E-commerce Optimization','Liquid',],
   category: 'work',
   liveLink: 'https://mamasandpapas.ph/',
   githubLink: '#',
