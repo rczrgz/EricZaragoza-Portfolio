@@ -1,8 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 
-// Social Icons (inline for demo)
+// Add custom scrollbar hiding styles
+const scrollbarHideStyle = `
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+  
+  .scrollbar-custom-light::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .scrollbar-custom-light::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-custom-light::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-custom-light::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+`;
+
+// Social Icons
 const InstagramIcon = (props) => (
   <svg {...props} fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
@@ -21,6 +68,349 @@ const GitHubIcon = (props) => (
   </svg>
 );
 
+// Custom GitHub Contribution Chart Component
+const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
+  const [contributions, setContributions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalContributions, setTotalContributions] = useState(0);
+
+  useEffect(() => {
+    if (!apiUrl) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchContributions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('Fetching contributions for:', username);
+        
+        // Prepare headers
+        const headers = {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        };
+        
+        // Add authorization if token is provided
+        if (githubToken) {
+          headers['Authorization'] = `Bearer ${githubToken}`;
+        }
+        
+        let data;
+        
+        // Check if it's GitHub GraphQL API
+        if (apiUrl.includes('graphql')) {
+          // GraphQL Query for contributions
+          const query = `
+            query($username: String!) {
+              user(login: $username) {
+                contributionsCollection {
+                  contributionCalendar {
+                    totalContributions
+                    weeks {
+                      contributionDays {
+                        contributionCount
+                        date
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `;
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              query,
+              variables: { username }
+            }),
+          });
+          
+          if (!response.ok) {
+            throw new Error(`GitHub API returned status ${response.status}: ${response.statusText}`);
+          }
+          
+          const result = await response.json();
+          
+          if (result.errors) {
+            throw new Error(result.errors[0].message);
+          }
+          
+          data = result;
+        } else {
+          // Regular REST API
+          const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers,
+          });
+          
+          if (!response.ok) {
+            throw new Error(`API returned status ${response.status}: ${response.statusText}`);
+          }
+          
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error(`API returned non-JSON response: ${contentType}`);
+          }
+          
+          data = await response.json();
+        }
+        
+        console.log('Successfully fetched data');
+        processContributionData(data);
+        
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching contributions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContributions();
+  }, [apiUrl, githubToken, username]);
+
+  const processContributionData = (data) => {
+    // Handle different API response formats
+    let contributionArray = [];
+    let total = 0;
+
+    // Format 1: Direct array of contributions
+    if (Array.isArray(data)) {
+      contributionArray = data;
+      total = data.reduce((sum, item) => sum + (item.count || item.contributionCount || 0), 0);
+    }
+    // Format 2: Object with contributions array
+    else if (data.contributions && Array.isArray(data.contributions)) {
+      contributionArray = data.contributions;
+      total = data.total || contributionArray.reduce((sum, item) => sum + (item.count || item.contributionCount || 0), 0);
+    }
+    // Format 3: GitHub API format with weeks
+    else if (data.weeks && Array.isArray(data.weeks)) {
+      contributionArray = data.weeks.flatMap(week => 
+        week.contributionDays || week.days || []
+      );
+      total = data.totalContributions || contributionArray.reduce((sum, item) => sum + (item.count || item.contributionCount || 0), 0);
+    }
+    // Format 4: Nested data structure
+    else if (data.data && data.data.user && data.data.user.contributionsCollection) {
+      const collection = data.data.user.contributionsCollection;
+      if (collection.contributionCalendar && collection.contributionCalendar.weeks) {
+        contributionArray = collection.contributionCalendar.weeks.flatMap(week => week.contributionDays || []);
+        total = collection.contributionCalendar.totalContributions || 0;
+      }
+    }
+
+    setContributions(contributionArray);
+    setTotalContributions(total);
+  };
+
+  const getMonths = () => {
+    const months = [];
+    const today = new Date();
+    
+    // Generate months for the last 12 months
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      months.push({
+        name: date.toLocaleDateString('en-US', { month: 'short' }),
+        date: date
+      });
+    }
+    return months;
+  };
+
+  const getContributionColor = (count) => {
+    if (count === -1) return 'bg-transparent'; // Empty cells for padding
+    if (count === 0) return 'bg-gray-800 border border-gray-700';
+    if (count < 3) return 'bg-green-900';
+    if (count < 6) return 'bg-green-700';
+    if (count < 9) return 'bg-green-600';
+    return 'bg-green-500';
+  };
+
+  const renderContributionGrid = () => {
+    // Calculate the date range for the last 365 days
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // Set to end of day to include today
+    
+    const oneYearAgo = new Date(today);
+    oneYearAgo.setDate(today.getDate() - 364); // 365 days including today
+    oneYearAgo.setHours(0, 0, 0, 0); // Start of that day
+    
+    // Start from the previous Sunday to align the grid properly
+    const startDate = new Date(oneYearAgo);
+    const dayOfWeek = startDate.getDay();
+    startDate.setDate(startDate.getDate() - dayOfWeek);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // End on the next Saturday after today
+    const endDate = new Date(today);
+    const daysUntilSaturday = 6 - today.getDay();
+    endDate.setDate(today.getDate() + daysUntilSaturday);
+    endDate.setHours(23, 59, 59, 999);
+    
+    // Calculate number of weeks needed
+    const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    const weeksNeeded = Math.ceil(daysDiff / 7);
+    
+    const grid = [];
+    let currentDate = new Date(startDate);
+
+    for (let week = 0; week < weeksNeeded; week++) {
+      const weekData = [];
+      for (let day = 0; day < 7; day++) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const checkDate = new Date(currentDate);
+        checkDate.setHours(12, 0, 0, 0); // Set to noon for comparison
+        
+        const todayNoon = new Date(today);
+        todayNoon.setHours(12, 0, 0, 0);
+        
+        // Check if date is before the year range or in the future
+        if (checkDate < oneYearAgo || checkDate > todayNoon) {
+          // Add invisible/empty cell
+          weekData.push({ count: -1, date: dateStr });
+        } else {
+          // Find contribution data for this date
+          const contribution = contributions.find(c => {
+            if (!c.date) return false;
+            const cDateStr = c.date.split('T')[0];
+            return cDateStr === dateStr;
+          });
+          
+          const count = contribution ? (contribution.count || contribution.contributionCount || 0) : 0;
+          weekData.push({ count, date: dateStr });
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      grid.push(weekData);
+    }
+
+    return grid;
+  };
+
+  if (!apiUrl) {
+    return (
+      <div className="overflow-x-auto pb-2 bg-[#0d1117] p-4 rounded-lg">
+        <img 
+          src="https://ghchart.rshah.org/2ea043/rczrgz" 
+          alt="GitHub Contribution Chart"
+          className="w-full h-auto"
+          style={{ minWidth: '100%' }}
+        />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8 bg-[#0d1117] rounded-lg">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-900/20 rounded-lg border border-red-500/30">
+        <p className="text-red-400 text-sm font-semibold mb-2">⚠️ API Error</p>
+        <p className="text-red-300 text-xs mb-3">{error}</p>
+        <details className="text-xs text-gray-400">
+          <summary className="cursor-pointer hover:text-gray-300 mb-2">Troubleshooting Tips</summary>
+          <ul className="list-disc list-inside space-y-1 ml-2">
+            <li>Check your API URL in .env file</li>
+            <li>Ensure API returns JSON format</li>
+            <li>Check browser console for detailed logs</li>
+            <li>Verify API authentication if required</li>
+            <li>Check for CORS issues</li>
+          </ul>
+        </details>
+        <p className="text-gray-400 text-xs mt-3">Using fallback chart...</p>
+        <div className="mt-4 overflow-x-auto pb-2 bg-[#0d1117] p-4 rounded-lg">
+          <img 
+            src="https://ghchart.rshah.org/2ea043/rczrgz" 
+            alt="GitHub Contribution Chart"
+            className="w-full h-auto"
+            style={{ minWidth: '100%' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-[#0d1117] p-3 rounded-lg border border-gray-700">
+      {totalContributions > 0 && (
+        <div className="mb-3 text-xs text-gray-400">
+          {totalContributions} contributions in the last year
+        </div>
+      )}
+      
+      <div className="overflow-x-auto scrollbar-custom pb-3">
+        {/* Month Labels */}
+        <div className="flex mb-1 min-w-max">
+          {getMonths().map((month, i) => (
+            <div 
+              key={i} 
+              className="text-[10px] text-gray-400"
+              style={{ width: '43px' }}
+            >
+              {month.name}
+            </div>
+          ))}
+        </div>
+
+        {/* Contribution Grid - No Day Labels */}
+        <div className="flex gap-[2px] min-w-max mb-2">
+          {renderContributionGrid().map((week, weekIndex) => (
+            <div key={weekIndex} className="flex flex-col gap-[2px]">
+              {week.map((day, dayIndex) => (
+                day.count === -1 ? (
+                  <div key={`${weekIndex}-${dayIndex}`} className="w-[8px] h-[8px]" />
+                ) : (
+                  <motion.div
+                    key={`${weekIndex}-${dayIndex}`}
+                    className={`w-[8px] h-[8px] rounded-[1px] ${getContributionColor(day.count)} cursor-pointer`}
+                    whileHover={{ scale: 1.4 }}
+                    title={`${day.count} contributions on ${day.date}`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: (weekIndex * 7 + dayIndex) * 0.0005 }}
+                  />
+                )
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center justify-between mt-3 text-[10px] text-gray-400">
+        <span className="text-gray-500">Learn how we count contributions</span>
+        <div className="flex items-center gap-2">
+          <span>Less</span>
+          <div className="flex gap-1">
+            <div className="w-[8px] h-[8px] rounded-[1px] bg-gray-800 border border-gray-700"></div>
+            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-900"></div>
+            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-700"></div>
+            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-600"></div>
+            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-500"></div>
+          </div>
+          <span>More</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -30,6 +420,39 @@ const Contact = () => {
 
   const [showNotif, setShowNotif] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Read from environment variables
+  const GITHUB_API_URL = process.env.REACT_APP_GITHUB_API_URL || '';
+  const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN || '';
+  const GITHUB_USERNAME = process.env.REACT_APP_GITHUB_USERNAME || 'rczrgz';
+
+  // Update clock every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -65,6 +488,7 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-900">
+      <style>{scrollbarHideStyle}</style>
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-4xl font-extrabold text-center mb-12 text-gray-900 dark:text-white"
@@ -89,7 +513,7 @@ const Contact = () => {
           </motion.div>
         )}
 
-        <div className="flex flex-col lg:flex-row items-start justify-center gap-12 max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row items-start justify-center gap-8 max-w-6xl mx-auto">
           {/* Contact Form */}
           <motion.div
             className="w-full lg:w-2/3 p-8 rounded-lg shadow-md bg-white dark:bg-gray-800 hover:shadow-xl transition-shadow duration-300"
@@ -170,52 +594,98 @@ const Contact = () => {
             </div>
           </motion.div>
 
-          {/* Social Media Links */}
-          <motion.div
-            className="w-full lg:w-1/3 flex flex-col items-center justify-center p-8
-                       bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Connect with Me</h3>
-            <div className="flex space-x-6">
-              <motion.a
-                href="https://www.instagram.com/rc.zrgz/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                whileHover={{ scale: 1.15, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <InstagramIcon className="h-10 w-10" />
-              </motion.a>
-              <motion.a
-                href="https://www.linkedin.com/in/eric-zaragoza-7408a6252/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                whileHover={{ scale: 1.15, rotate: -5 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <LinkedinIcon className="h-10 w-10" />
-              </motion.a>
-              <motion.a
-                href="https://github.com/rczrgz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-                whileHover={{ scale: 1.15, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <GitHubIcon className="h-10 w-10" />
-              </motion.a>
-            </div>
-          </motion.div>
+          {/* Right Side - Social & Stats */}
+          <div className="w-full lg:w-1/3 flex flex-col gap-6">
+            {/* Clock Widget */}
+            <motion.div
+              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="text-center">
+                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2 font-mono">
+                  {formatTime(currentTime)}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {formatDate(currentTime)}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Social Media Links */}
+            <motion.div
+              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              <h3 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">Connect with Me</h3>
+              <div className="flex justify-center space-x-6">
+                <motion.a
+                  href="https://www.instagram.com/rc.zrgz/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
+                  whileHover={{ scale: 1.15, rotate: 5 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <InstagramIcon className="h-10 w-10" />
+                </motion.a>
+                <motion.a
+                  href="https://www.linkedin.com/in/eric-zaragoza-7408a6252/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                  whileHover={{ scale: 1.15, rotate: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <LinkedinIcon className="h-10 w-10" />
+                </motion.a>
+                <motion.a
+                  href="https://github.com/rczrgz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                  whileHover={{ scale: 1.15, rotate: 5 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <GitHubIcon className="h-10 w-10" />
+                </motion.a>
+              </div>
+            </motion.div>
+
+            {/* GitHub Contribution Graph */}
+            <motion.div
+              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">GitHub Activity</h3>
+              <GitHubContributionChart 
+                apiUrl={GITHUB_API_URL} 
+                githubToken={GITHUB_TOKEN}
+                username={GITHUB_USERNAME} 
+              />
+              <div className="mt-4 text-center">
+                <a 
+                  href={`https://github.com/${GITHUB_USERNAME}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline transition-colors"
+                >
+                  View Full Profile →
+                </a>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>

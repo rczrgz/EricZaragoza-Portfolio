@@ -124,8 +124,8 @@ const Home = () => {
 
   useEffect(() => {
     const currentRole = roles[currentIndex].text;
-    const typingSpeed = isDeleting ? 50 : 100;
-    const pauseTime = isDeleting ? 500 : 2000;
+    const typingSpeed = isDeleting ? 30 : 80;
+    const pauseTime = isDeleting ? 300 : 2500;
 
     const timer = setTimeout(() => {
       if (!isDeleting) {
@@ -146,7 +146,6 @@ const Home = () => {
 
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, currentIndex]);
-
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-950">
       <NetworkBackground />
