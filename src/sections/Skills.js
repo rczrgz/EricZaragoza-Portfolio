@@ -6,58 +6,79 @@ const skills = [
   { 
     name: 'React', 
     icon: CodeBracketIcon, 
-    level: 'Advanced',
-    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
+    level: 'Proficient',
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop',
     description: 'Building dynamic UIs with component-based architecture'
   },
   { 
     name: 'Tailwind CSS', 
     icon: PaintBrushIcon, 
-    level: 'Advanced',
-    image: 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?w=400&h=300&fit=crop',
-    description: 'Crafting beautiful, responsive designs with utility classes'
+    level: 'Proficient',
+    image: 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?w=600&h=400&fit=crop',
+    description: 'Crafting responsive and modern UI designs with utility classes'
   },
   { 
     name: 'JavaScript', 
     icon: CommandLineIcon, 
-    level: 'Advanced',
-    image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=300&fit=crop',
+    level: 'Proficient',
+    image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=600&h=400&fit=crop',
     description: 'Writing modern, efficient code for web applications'
   },
   { 
     name: 'Node.js', 
     icon: GlobeAltIcon, 
-    level: 'Intermediate',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    level: 'Competent',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop',
     description: 'Building scalable server-side applications'
-  },
-  { 
-    name: 'Express.js', 
-    icon: GlobeAltIcon, 
-    level: 'Intermediate',
-    image: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400&h=300&fit=crop',
-    description: 'Creating robust RESTful APIs and backends'
-  },
-  { 
-    name: 'MongoDB', 
-    icon: CodeBracketIcon, 
-    level: 'Intermediate',
-    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400&h=300&fit=crop',
-    description: 'Managing NoSQL databases for flexible data storage'
-  },
-  { 
-    name: 'Framer Motion', 
-    icon: PaintBrushIcon, 
-    level: 'Advanced',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop',
-    description: 'Creating smooth, engaging animations and interactions'
   },
   { 
     name: 'Git', 
     icon: CommandLineIcon, 
-    level: 'Advanced',
-    image: 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=400&h=300&fit=crop',
+    level: 'Proficient',
+    image: 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=600&h=400&fit=crop',
     description: 'Version control and collaborative development workflows'
+  },
+  { 
+    name: 'Flutter', 
+    icon: CodeBracketIcon, 
+    level: 'Competent',
+    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop',
+    description: 'Building cross-platform mobile applications'
+  },
+  { 
+    name: 'Dart', 
+    icon: CommandLineIcon, 
+    level: 'Competent',
+    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop',
+    description: 'Programming language for Flutter application development'
+  },
+  { 
+    name: 'HTML', 
+    icon: CodeBracketIcon, 
+    level: 'Proficient',
+    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop',
+    description: 'Structuring accessible and semantic web content'
+  },
+  { 
+    name: 'MySQL', 
+    icon: GlobeAltIcon, 
+    level: 'Competent',
+    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=600&h=400&fit=crop',
+    description: 'Managing relational databases and structured data'
+  },
+  { 
+    name: 'PHP', 
+    icon: CommandLineIcon, 
+    level: 'Competent',
+    image: 'https://images.unsplash.com/photo-1599507593499-a3f7d7d97667?w=600&h=400&fit=crop',
+    description: 'Server-side scripting for dynamic web applications'
+  },
+  { 
+    name: 'n8n', 
+    icon: GlobeAltIcon, 
+    level: 'Competent',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop',
+    description: 'Workflow automation and integration platform'
   },
 ];
 
@@ -81,9 +102,9 @@ const Skills = () => {
 
   return (
     <section id="skills" className="py-20 bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 max-w-[1400px]">
         <motion.h2
-          className="text-4xl font-extrabold text-center mb-12 text-gray-900 dark:text-white"
+          className="text-4xl font-extrabold text-center mb-16 text-gray-900 dark:text-white"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -92,9 +113,9 @@ const Skills = () => {
           My <span className="text-blue-600 dark:text-blue-400">Skills</span>
         </motion.h2>
 
-        <div className="flex gap-8 items-start">
+        <div className="flex gap-10 items-start">
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-1"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 w-full lg:w-[58%]"
             variants={containerVariants}
             initial="hidden"
             whileInView="show"
@@ -103,7 +124,7 @@ const Skills = () => {
             {skills.map((skill, index) => (
               <motion.div
                 key={skill.name}
-                className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800
+                className="p-5 rounded-xl shadow-md bg-white dark:bg-gray-800
                            flex flex-col items-center text-center hover:shadow-xl
                            hover:scale-105 transition-all duration-300 group cursor-pointer
                            border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400"
@@ -112,9 +133,9 @@ const Skills = () => {
                 onMouseLeave={() => setHoveredSkill(null)}
               >
                 <skill.icon className="h-12 w-12 mb-4 text-blue-600 dark:text-blue-400 group-hover:animate-bounce" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{skill.name}</h3>
+                <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">{skill.name}</h3>
                 <motion.span
-                  className="px-3 py-1 text-sm rounded-full bg-blue-100 dark:bg-blue-900
+                  className="px-3 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900
                              text-blue-600 dark:text-blue-300 font-medium"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -127,9 +148,9 @@ const Skills = () => {
           </motion.div>
 
           {/* Image Preview Panel */}
-          <div className="hidden xl:block sticky top-24 w-96">
+          <div className="hidden lg:block sticky top-24 w-full lg:w-[42%]">
             <motion.div
-              className="relative h-[390px] rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl"
+              className="relative h-[550px] rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -144,7 +165,7 @@ const Skills = () => {
                   transition={{ duration: 0.4 }}
                 >
                   {/* Image Container with Glassmorphism */}
-                  <div className="relative rounded-xl overflow-hidden mb-4 h-64 group">
+                  <div className="relative rounded-xl overflow-hidden mb-6 h-80 group">
                     <motion.img
                       src={hoveredSkill.image}
                       alt={hoveredSkill.name}
@@ -158,12 +179,12 @@ const Skills = () => {
                     
                     {/* Floating Icon */}
                     <motion.div
-                      className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-3 rounded-full shadow-lg"
+                      className="absolute top-5 right-5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-4 rounded-full shadow-lg"
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
                     >
-                      <hoveredSkill.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                      <hoveredSkill.icon className="h-10 w-10 text-blue-600 dark:text-blue-400" />
                     </motion.div>
                   </div>
 
@@ -176,7 +197,7 @@ const Skills = () => {
                   >
                     <div>
                       <motion.h3
-                        className="text-3xl font-bold mb-3 text-gray-900 dark:text-white"
+                        className="text-4xl font-bold mb-4 text-gray-900 dark:text-white"
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
@@ -185,18 +206,18 @@ const Skills = () => {
                       </motion.h3>
                       
                       <motion.div
-                        className="inline-block px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 mb-4"
+                        className="inline-block px-5 py-2 rounded-full bg-blue-100 dark:bg-blue-900 mb-5"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.25, type: 'spring' }}
                       >
-                        <span className="text-sm font-semibold text-blue-600 dark:text-blue-300">
+                        <span className="text-base font-semibold text-blue-600 dark:text-blue-300">
                           {hoveredSkill.level} Level
                         </span>
                       </motion.div>
 
                       <motion.p
-                        className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                        className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed"
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}

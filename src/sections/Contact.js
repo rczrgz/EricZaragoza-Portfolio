@@ -64,16 +64,16 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-background-light dark:bg-background-dark">
+    <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <motion.h2
-          className="text-4xl font-extrabold text-center mb-12"
-          initial={{ opacity: 0, y: -50 }}
+          className="text-4xl font-extrabold text-center mb-12 text-gray-900 dark:text-white"
+          initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8 }}
+          viewport={{ once: true, amount: 0.8 }}
+          transition={{ duration: 0.4 }}
         >
-          Get in <span className="text-primary-light dark:text-primary-dark">Touch</span>
+          Get in <span className="text-blue-600 dark:text-blue-400">Touch</span>
         </motion.h2>
 
         {/* Success Notification */}
@@ -81,6 +81,8 @@ const Contact = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"
           >
             Message sent successfully! ✓
@@ -90,16 +92,16 @@ const Contact = () => {
         <div className="flex flex-col lg:flex-row items-start justify-center gap-12 max-w-6xl mx-auto">
           {/* Contact Form */}
           <motion.div
-            className="w-full lg:w-2/3 p-8 rounded-lg shadow-md bg-card-light dark:bg-card-dark hover:shadow-xl transition-all duration-300"
-            initial={{ opacity: 0, x: -100 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            className="w-full lg:w-2/3 p-8 rounded-lg shadow-md bg-white dark:bg-gray-800 hover:shadow-xl transition-shadow duration-300"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.5 }}
           >
-            <h3 className="text-2xl font-bold mb-6 text-center">Send Me a Message</h3>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <h3 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Send Me a Message</h3>
+            <div className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-lg font-medium mb-2">
+                <label htmlFor="name" className="block text-lg font-medium mb-2 text-gray-900 dark:text-white">
                   Name
                 </label>
                 <input
@@ -110,14 +112,14 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   disabled={isSending}
-                  className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-600
-                             focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark outline-none
-                             transition-colors duration-300 disabled:opacity-50"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 outline-none
+                             transition-all duration-200 disabled:opacity-50 text-gray-900 dark:text-white"
                   placeholder="Your Name"
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-lg font-medium mb-2">
+                <label htmlFor="email" className="block text-lg font-medium mb-2 text-gray-900 dark:text-white">
                   Email
                 </label>
                 <input
@@ -128,14 +130,14 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   disabled={isSending}
-                  className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-600
-                             focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark outline-none
-                             transition-colors duration-300 disabled:opacity-50"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 outline-none
+                             transition-all duration-200 disabled:opacity-50 text-gray-900 dark:text-white"
                   placeholder="your.email@example.com"
                 />
               </div>
               <div>
-                <label htmlFor="message" className="block text-lg font-medium mb-2">
+                <label htmlFor="message" className="block text-lg font-medium mb-2 text-gray-900 dark:text-white">
                   Message
                 </label>
                 <textarea
@@ -146,44 +148,47 @@ const Contact = () => {
                   rows="5"
                   required
                   disabled={isSending}
-                  className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-gray-300 dark:border-gray-600
-                             focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark outline-none
-                             transition-colors duration-300 disabled:opacity-50"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600
+                             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 outline-none
+                             transition-all duration-200 disabled:opacity-50 resize-none text-gray-900 dark:text-white"
                   placeholder="Your message..."
                 ></textarea>
               </div>
               <motion.button
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={isSending}
-                className="w-full py-3 px-6 rounded-lg bg-primary-light dark:bg-primary-dark text-white font-semibold text-lg
-                           hover:bg-primary-dark dark:hover:bg-primary-light transition-colors duration-300 shadow-md
+                className="w-full py-3 px-6 rounded-lg bg-blue-600 dark:bg-blue-500 text-white font-semibold text-lg
+                           hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200 shadow-md
                            disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: isSending ? 1 : 1.02 }}
                 whileTap={{ scale: isSending ? 1 : 0.98 }}
+                transition={{ duration: 0.2 }}
               >
                 {isSending ? 'Sending...' : 'Send Message'}
               </motion.button>
-            </form>
+            </div>
           </motion.div>
 
           {/* Social Media Links */}
           <motion.div
             className="w-full lg:w-1/3 flex flex-col items-center justify-center p-8
-                       bg-card-light dark:bg-card-dark rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
-            initial={{ opacity: 0, x: 100 }}
-            whileInView={{ opacity: 1, x: 0 }}
+                       bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h3 className="text-2xl font-bold mb-6">Connect with Me</h3>
+            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Connect with Me</h3>
             <div className="flex space-x-6">
               <motion.a
                 href="https://www.instagram.com/rc.zrgz/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-300"
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                whileHover={{ scale: 1.15, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
               >
                 <InstagramIcon className="h-10 w-10" />
               </motion.a>
@@ -191,9 +196,10 @@ const Contact = () => {
                 href="https://www.linkedin.com/in/eric-zaragoza-7408a6252/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-300"
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                whileHover={{ scale: 1.15, rotate: -5 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
               >
                 <LinkedinIcon className="h-10 w-10" />
               </motion.a>
@@ -201,9 +207,10 @@ const Contact = () => {
                 href="https://github.com/rczrgz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-300"
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                whileHover={{ scale: 1.15, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
               >
                 <GitHubIcon className="h-10 w-10" />
               </motion.a>
