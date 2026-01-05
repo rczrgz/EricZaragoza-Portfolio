@@ -1,19 +1,69 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CommandLineIcon, GlobeAltIcon, PaintBrushIcon, CodeBracketIcon } from '@heroicons/react/24/outline'; // Example icons
+import { CommandLineIcon, GlobeAltIcon, PaintBrushIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
 
 const skills = [
-  { name: 'React', icon: CodeBracketIcon, level: 'Advanced' },
-  { name: 'Tailwind CSS', icon: PaintBrushIcon, level: 'Advanced' },
-  { name: 'JavaScript', icon: CommandLineIcon, level: 'Advanced' },
-  { name: 'Node.js', icon: GlobeAltIcon, level: 'Intermediate' },
-  { name: 'Express.js', icon: GlobeAltIcon, level: 'Intermediate' },
-  { name: 'MongoDB', icon: CodeBracketIcon, level: 'Intermediate' },
-  { name: 'Framer Motion', icon: PaintBrushIcon, level: 'Advanced' },
-  { name: 'Git', icon: CommandLineIcon, level: 'Advanced' },
+  { 
+    name: 'React', 
+    icon: CodeBracketIcon, 
+    level: 'Advanced',
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
+    description: 'Building dynamic UIs with component-based architecture'
+  },
+  { 
+    name: 'Tailwind CSS', 
+    icon: PaintBrushIcon, 
+    level: 'Advanced',
+    image: 'https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?w=400&h=300&fit=crop',
+    description: 'Crafting beautiful, responsive designs with utility classes'
+  },
+  { 
+    name: 'JavaScript', 
+    icon: CommandLineIcon, 
+    level: 'Advanced',
+    image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=300&fit=crop',
+    description: 'Writing modern, efficient code for web applications'
+  },
+  { 
+    name: 'Node.js', 
+    icon: GlobeAltIcon, 
+    level: 'Intermediate',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    description: 'Building scalable server-side applications'
+  },
+  { 
+    name: 'Express.js', 
+    icon: GlobeAltIcon, 
+    level: 'Intermediate',
+    image: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400&h=300&fit=crop',
+    description: 'Creating robust RESTful APIs and backends'
+  },
+  { 
+    name: 'MongoDB', 
+    icon: CodeBracketIcon, 
+    level: 'Intermediate',
+    image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400&h=300&fit=crop',
+    description: 'Managing NoSQL databases for flexible data storage'
+  },
+  { 
+    name: 'Framer Motion', 
+    icon: PaintBrushIcon, 
+    level: 'Advanced',
+    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=300&fit=crop',
+    description: 'Creating smooth, engaging animations and interactions'
+  },
+  { 
+    name: 'Git', 
+    icon: CommandLineIcon, 
+    level: 'Advanced',
+    image: 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=400&h=300&fit=crop',
+    description: 'Version control and collaborative development workflows'
+  },
 ];
 
 const Skills = () => {
+  const [hoveredSkill, setHoveredSkill] = React.useState(null);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -30,57 +80,178 @@ const Skills = () => {
   };
 
   return (
-    <section id="skills" className="py-20 bg-background-light dark:bg-background-dark">
+    <section id="skills" className="py-20 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <motion.h2
-          className="text-4xl font-extrabold text-center mb-12"
+          className="text-4xl font-extrabold text-center mb-12 text-gray-900 dark:text-white"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.8 }}
         >
-          My <span className="text-primary-light dark:text-primary-dark">Skills</span>
+          My <span className="text-blue-600 dark:text-blue-400">Skills</span>
         </motion.h2>
 
-        <motion.div
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.3 }}
-        >
-          {skills.map((skill, index) => (
-            <motion.div
-              key={skill.name}
-              className="p-6 rounded-lg shadow-md bg-card-light dark:bg-card-dark
-                         flex flex-col items-center text-center hover:shadow-xl
-                         hover:scale-105 transition-all duration-300 group"
-              variants={itemVariants}
-            >
-              <skill.icon className="h-12 w-12 mb-4 text-primary-light dark:text-primary-dark group-hover:animate-bounce" />
-              <h3 className="text-xl font-semibold mb-2">{skill.name}</h3>
-              <motion.span
-                className="px-3 py-1 text-sm rounded-full bg-primary-light/20 dark:bg-primary-dark/20
-                           text-primary-light dark:text-primary-dark font-medium"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.1 * index, duration: 0.5 }}
+        <div className="flex gap-8 items-start">
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-1"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            {skills.map((skill, index) => (
+              <motion.div
+                key={skill.name}
+                className="p-6 rounded-lg shadow-md bg-white dark:bg-gray-800
+                           flex flex-col items-center text-center hover:shadow-xl
+                           hover:scale-105 transition-all duration-300 group cursor-pointer
+                           border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400"
+                variants={itemVariants}
+                onMouseEnter={() => setHoveredSkill(skill)}
+                onMouseLeave={() => setHoveredSkill(null)}
               >
-                {skill.level}
-              </motion.span>
-              {/* Optional: Add an animated progress bar */}
-              {/* <div className="w-full h-2 bg-gray-300 rounded-full mt-4 overflow-hidden">
+                <skill.icon className="h-12 w-12 mb-4 text-blue-600 dark:text-blue-400 group-hover:animate-bounce" />
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{skill.name}</h3>
+                <motion.span
+                  className="px-3 py-1 text-sm rounded-full bg-blue-100 dark:bg-blue-900
+                             text-blue-600 dark:text-blue-300 font-medium"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1 * index, duration: 0.5 }}
+                >
+                  {skill.level}
+                </motion.span>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Image Preview Panel */}
+          <div className="hidden xl:block sticky top-24 w-96">
+            <motion.div
+              className="relative h-[390px] rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {hoveredSkill ? (
                 <motion.div
-                  className="h-full bg-primary-light dark:bg-primary-dark rounded-full"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '80%' }} // Example width, adjust based on skill level
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 1, delay: 0.5 + 0.1 * index }}
-                ></motion.div>
-              </div> */}
+                  key={hoveredSkill.name}
+                  className="absolute inset-0 p-6 flex flex-col"
+                  initial={{ opacity: 0, scale: 0.9, rotateY: -15 }}
+                  animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {/* Image Container with Glassmorphism */}
+                  <div className="relative rounded-xl overflow-hidden mb-4 h-64 group">
+                    <motion.img
+                      src={hoveredSkill.image}
+                      alt={hoveredSkill.name}
+                      className="w-full h-full object-cover"
+                      initial={{ scale: 1.2 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.6 }}
+                    />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                    
+                    {/* Floating Icon */}
+                    <motion.div
+                      className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm p-3 rounded-full shadow-lg"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                    >
+                      <hoveredSkill.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                    </motion.div>
+                  </div>
+
+                  {/* Content Section */}
+                  <motion.div
+                    className="flex-1 flex flex-col justify-between"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.15 }}
+                  >
+                    <div>
+                      <motion.h3
+                        className="text-3xl font-bold mb-3 text-gray-900 dark:text-white"
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        {hoveredSkill.name}
+                      </motion.h3>
+                      
+                      <motion.div
+                        className="inline-block px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900 mb-4"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.25, type: 'spring' }}
+                      >
+                        <span className="text-sm font-semibold text-blue-600 dark:text-blue-300">
+                          {hoveredSkill.level} Level
+                        </span>
+                      </motion.div>
+
+                      <motion.p
+                        className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        {hoveredSkill.description}
+                      </motion.p>
+                    </div>
+
+                    {/* Decorative Elements */}
+                    <div className="flex gap-2 mt-6">
+                      {[...Array(3)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="h-1 flex-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ delay: 0.4 + i * 0.1, duration: 0.5 }}
+                        />
+                      ))}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="absolute inset-0 flex items-center justify-center p-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="text-center">
+                    <motion.div
+                      className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 flex items-center justify-center"
+                      animate={{ 
+                        rotate: 360,
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                        scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                      }}
+                    >
+                      <PaintBrushIcon className="h-12 w-12 text-white" />
+                    </motion.div>
+                    <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
+                      Explore My Skills
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Hover over any skill card to see more details
+                    </p>
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
-          ))}
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
