@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import { InstagramIcon, LinkedinIcon, GitHubIcon } from '../components/SocialIcons';
 
@@ -50,6 +50,127 @@ const scrollbarHideStyle = `
   }
 `;
 
+// Spam Protection Utilities
+const SPAM_PROTECTION = {
+  MAX_ATTEMPTS: 3,
+  TIME_WINDOW: 60 * 60 * 1000,
+  COOLDOWN_PERIOD: 5 * 60 * 1000,
+  MIN_MESSAGE_LENGTH: 1, // Changed from 10 to 1
+  STORAGE_KEY: 'email_submissions'
+};
+
+const getSubmissionHistory = () => {
+  try {
+    const history = localStorage.getItem(SPAM_PROTECTION.STORAGE_KEY);
+    return history ? JSON.parse(history) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveSubmissionHistory = (history) => {
+  try {
+    localStorage.setItem(SPAM_PROTECTION.STORAGE_KEY, JSON.stringify(history));
+  } catch (error) {
+    console.error('Failed to save submission history:', error);
+  }
+};
+
+const canSubmit = () => {
+  const now = Date.now();
+  const history = getSubmissionHistory();
+  
+  const recentHistory = history.filter(
+    timestamp => now - timestamp < SPAM_PROTECTION.TIME_WINDOW
+  );
+  
+  if (recentHistory.length >= SPAM_PROTECTION.MAX_ATTEMPTS) {
+    const oldestRecent = Math.min(...recentHistory);
+    const timeSinceOldest = now - oldestRecent;
+    
+    if (timeSinceOldest < SPAM_PROTECTION.COOLDOWN_PERIOD) {
+      const remainingTime = Math.ceil(
+        (SPAM_PROTECTION.COOLDOWN_PERIOD - timeSinceOldest) / 1000 / 60
+      );
+      return {
+        allowed: false,
+        reason: `Too many submissions. Please wait ${remainingTime} minute(s).`
+      };
+    }
+    
+    saveSubmissionHistory([]);
+    return { allowed: true };
+  }
+  
+  return { allowed: true };
+};
+
+const recordSubmission = () => {
+  const history = getSubmissionHistory();
+  history.push(Date.now());
+  
+  const recentHistory = history.filter(
+    timestamp => Date.now() - timestamp < SPAM_PROTECTION.TIME_WINDOW
+  );
+  
+  saveSubmissionHistory(recentHistory);
+};
+
+// Enhanced Notification Component
+const Notification = ({ type, message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const styles = {
+    success: {
+      bg: 'bg-green-500',
+      icon: '✓',
+      iconBg: 'bg-green-600'
+    },
+    error: {
+      bg: 'bg-red-500',
+      icon: '✕',
+      iconBg: 'bg-red-600'
+    },
+    warning: {
+      bg: 'bg-yellow-500',
+      icon: '⚠',
+      iconBg: 'bg-yellow-600'
+    }
+  };
+
+  const style = styles[type] || styles.success;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -100, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -100, scale: 0.8 }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }}
+      className={`fixed top-6 left-1/2 transform -translate-x-1/2 ${style.bg} text-white px-6 py-4 rounded-xl shadow-2xl z-[9999] flex items-center gap-4 max-w-md min-w-[320px]`}
+      style={{ zIndex: 9999 }}
+    >
+      <div className={`${style.iconBg} rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0`}>
+        <span className="text-2xl font-bold">{style.icon}</span>
+      </div>
+      <span className="flex-1 font-medium text-base">{message}</span>
+      <button 
+        onClick={onClose}
+        className="text-white hover:text-gray-200 font-bold text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors flex-shrink-0"
+        aria-label="Close notification"
+      >
+        ×
+      </button>
+    </motion.div>
+  );
+};
+
 // Custom GitHub Contribution Chart Component
 const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) => {
   const [contributions, setContributions] = useState([]);
@@ -68,24 +189,18 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
         setLoading(true);
         setError(null);
         
-        console.log('Fetching contributions for:', username);
-        
-        // Prepare headers
         const headers = {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         };
         
-        // Add authorization if token is provided
         if (githubToken) {
           headers['Authorization'] = `Bearer ${githubToken}`;
         }
         
         let data;
         
-        // Check if it's GitHub GraphQL API
         if (apiUrl.includes('graphql')) {
-          // GraphQL Query for contributions
           const query = `
             query($username: String!) {
               user(login: $username) {
@@ -107,14 +222,11 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers,
-            body: JSON.stringify({
-              query,
-              variables: { username }
-            }),
+            body: JSON.stringify({ query, variables: { username } }),
           });
           
           if (!response.ok) {
-            throw new Error(`GitHub API returned status ${response.status}: ${response.statusText}`);
+            throw new Error(`GitHub API returned status ${response.status}`);
           }
           
           const result = await response.json();
@@ -125,31 +237,27 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
           
           data = result;
         } else {
-          // Regular REST API
           const response = await fetch(apiUrl, {
             method: 'GET',
             headers,
           });
           
           if (!response.ok) {
-            throw new Error(`API returned status ${response.status}: ${response.statusText}`);
+            throw new Error(`API returned status ${response.status}`);
           }
           
-          // Check if response is JSON
           const contentType = response.headers.get('content-type');
           if (!contentType || !contentType.includes('application/json')) {
-            throw new Error(`API returned non-JSON response: ${contentType}`);
+            throw new Error(`API returned non-JSON response`);
           }
           
           data = await response.json();
         }
         
-        console.log('Successfully fetched data');
         processContributionData(data);
         
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching contributions:', err);
       } finally {
         setLoading(false);
       }
@@ -159,29 +267,21 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
   }, [apiUrl, githubToken, username]);
 
   const processContributionData = (data) => {
-    // Handle different API response formats
     let contributionArray = [];
     let total = 0;
 
-    // Format 1: Direct array of contributions
     if (Array.isArray(data)) {
       contributionArray = data;
       total = data.reduce((sum, item) => sum + (item.count || item.contributionCount || 0), 0);
-    }
-    // Format 2: Object with contributions array
-    else if (data.contributions && Array.isArray(data.contributions)) {
+    } else if (data.contributions && Array.isArray(data.contributions)) {
       contributionArray = data.contributions;
       total = data.total || contributionArray.reduce((sum, item) => sum + (item.count || item.contributionCount || 0), 0);
-    }
-    // Format 3: GitHub API format with weeks
-    else if (data.weeks && Array.isArray(data.weeks)) {
+    } else if (data.weeks && Array.isArray(data.weeks)) {
       contributionArray = data.weeks.flatMap(week => 
         week.contributionDays || week.days || []
       );
       total = data.totalContributions || contributionArray.reduce((sum, item) => sum + (item.count || item.contributionCount || 0), 0);
-    }
-    // Format 4: Nested data structure
-    else if (data.data && data.data.user && data.data.user.contributionsCollection) {
+    } else if (data.data && data.data.user && data.data.user.contributionsCollection) {
       const collection = data.data.user.contributionsCollection;
       if (collection.contributionCalendar && collection.contributionCalendar.weeks) {
         contributionArray = collection.contributionCalendar.weeks.flatMap(week => week.contributionDays || []);
@@ -197,7 +297,6 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
     const months = [];
     const today = new Date();
     
-    // Generate months for the last 12 months
     for (let i = 11; i >= 0; i--) {
       const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
       months.push({
@@ -209,17 +308,15 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
   };
 
   const getContributionColor = (count) => {
-    if (count === -1) return 'bg-transparent'; // Empty cells for padding
+    if (count === -1) return 'bg-transparent';
     
     if (isDarkMode) {
-      // Dark mode colors
       if (count === 0) return 'bg-gray-800 border border-gray-700';
       if (count < 3) return 'bg-green-900';
       if (count < 6) return 'bg-green-700';
       if (count < 9) return 'bg-green-600';
       return 'bg-green-500';
     } else {
-      // Light mode colors
       if (count === 0) return 'bg-gray-200 border border-gray-300';
       if (count < 3) return 'bg-green-200';
       if (count < 6) return 'bg-green-400';
@@ -229,27 +326,23 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
   };
 
   const renderContributionGrid = () => {
-    // Calculate the date range for the last 365 days
     const today = new Date();
-    today.setHours(23, 59, 59, 999); // Set to end of day to include today
+    today.setHours(23, 59, 59, 999);
     
     const oneYearAgo = new Date(today);
-    oneYearAgo.setDate(today.getDate() - 364); // 365 days including today
-    oneYearAgo.setHours(0, 0, 0, 0); // Start of that day
+    oneYearAgo.setDate(today.getDate() - 364);
+    oneYearAgo.setHours(0, 0, 0, 0);
     
-    // Start from the previous Sunday to align the grid properly
     const startDate = new Date(oneYearAgo);
     const dayOfWeek = startDate.getDay();
     startDate.setDate(startDate.getDate() - dayOfWeek);
     startDate.setHours(0, 0, 0, 0);
     
-    // End on the next Saturday after today
     const endDate = new Date(today);
     const daysUntilSaturday = 6 - today.getDay();
     endDate.setDate(today.getDate() + daysUntilSaturday);
     endDate.setHours(23, 59, 59, 999);
     
-    // Calculate number of weeks needed
     const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
     const weeksNeeded = Math.ceil(daysDiff / 7);
     
@@ -261,17 +354,14 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
       for (let day = 0; day < 7; day++) {
         const dateStr = currentDate.toISOString().split('T')[0];
         const checkDate = new Date(currentDate);
-        checkDate.setHours(12, 0, 0, 0); // Set to noon for comparison
+        checkDate.setHours(12, 0, 0, 0);
         
         const todayNoon = new Date(today);
         todayNoon.setHours(12, 0, 0, 0);
         
-        // Check if date is before the year range or in the future
         if (checkDate < oneYearAgo || checkDate > todayNoon) {
-          // Add invisible/empty cell
           weekData.push({ count: -1, date: dateStr });
         } else {
-          // Find contribution data for this date
           const contribution = contributions.find(c => {
             if (!c.date) return false;
             const cDateStr = c.date.split('T')[0];
@@ -315,18 +405,7 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
     return (
       <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-red-900/20 border-red-500/30' : 'bg-red-100 border-red-300'}`}>
         <p className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>⚠️ API Error</p>
-        <p className={`text-xs mb-3 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>{error}</p>
-        <details className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          <summary className={`cursor-pointer mb-2 ${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-700'}`}>Troubleshooting Tips</summary>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Check your API URL in .env file</li>
-            <li>Ensure API returns JSON format</li>
-            <li>Check browser console for detailed logs</li>
-            <li>Verify API authentication if required</li>
-            <li>Check for CORS issues</li>
-          </ul>
-        </details>
-        <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Using fallback chart...</p>
+        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Using fallback chart...</p>
         <div className={`mt-4 overflow-x-auto pb-2 p-4 rounded-lg ${isDarkMode ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
           <img 
             src="https://ghchart.rshah.org/2ea043/rczrgz" 
@@ -348,7 +427,6 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
       )}
       
       <div className={`overflow-x-auto pb-3 ${isDarkMode ? 'scrollbar-custom' : 'scrollbar-custom-light'}`}>
-        {/* Month Labels */}
         <div className="flex mb-1 min-w-max">
           {getMonths().map((month, i) => (
             <div 
@@ -361,7 +439,6 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
           ))}
         </div>
 
-        {/* Contribution Grid - No Day Labels */}
         <div className="flex gap-[2px] min-w-max mb-2">
           {renderContributionGrid().map((week, weekIndex) => (
             <div key={weekIndex} className="flex flex-col gap-[2px]">
@@ -385,7 +462,6 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) 
         </div>
       </div>
 
-      {/* Legend */}
       <div className={`flex items-center justify-between mt-3 text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
         <span className={isDarkMode ? 'text-gray-500' : 'text-gray-500'}>Learn how we count contributions</span>
         <div className="flex items-center gap-2">
@@ -423,26 +499,22 @@ const Contact = () => {
     message: '',
   });
 
-  const [showNotif, setShowNotif] = useState(false);
+  const [notification, setNotification] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Read from environment variables
   const GITHUB_API_URL = process.env.REACT_APP_GITHUB_API_URL || '';
   const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN || '';
   const GITHUB_USERNAME = process.env.REACT_APP_GITHUB_USERNAME || 'rczrgz';
 
-  // Detect dark mode
   useEffect(() => {
     const checkDarkMode = () => {
       setIsDarkMode(document.documentElement.classList.contains('dark'));
     };
     
-    // Check initially
     checkDarkMode();
     
-    // Watch for changes
     const observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,
@@ -452,7 +524,6 @@ const Contact = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Update clock every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -483,37 +554,99 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSending(true);
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
+  };
 
-    emailjs
-      .send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    console.log('Form submitted!'); // Debug log
+
+    // Validation
+    if (formData.message.length < SPAM_PROTECTION.MIN_MESSAGE_LENGTH) {
+      console.log('Validation failed - message too short'); // Debug log
+      showNotification('warning', `Message must be at least ${SPAM_PROTECTION.MIN_MESSAGE_LENGTH} characters long.`);
+      return;
+    }
+
+    // Spam Protection Check
+    const submitCheck = canSubmit();
+    if (!submitCheck.allowed) {
+      console.log('Spam check failed'); // Debug log
+      showNotification('error', submitCheck.reason);
+      return;
+    }
+
+    setIsSending(true);
+    console.log('Sending started...'); // Debug log
+
+    // Check if EmailJS is configured
+    const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+    const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+
+    console.log('EmailJS Config:', { 
+      hasServiceId: !!serviceId, 
+      hasTemplateId: !!templateId, 
+      hasPublicKey: !!publicKey 
+    }); // Debug log
+
+    if (!serviceId || !templateId || !publicKey) {
+      // Test mode - simulate success
+      console.log('Running in TEST MODE - EmailJS not configured');
+      setTimeout(() => {
+        recordSubmission();
+        setIsSending(false);
+        console.log('Showing success notification'); // Debug log
+        showNotification('success', '✅ Message sent successfully! (Test Mode)');
+        setFormData({ name: '', email: '', message: '' });
+      }, 1000);
+      return;
+    }
+
+    // Real EmailJS submission
+    try {
+      console.log('Attempting real EmailJS send...'); // Debug log
+      await emailjs.send(
+        serviceId,
+        templateId,
         {
           name: formData.name,
           email: formData.email,
           message: formData.message,
         },
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-      )
-      .then(() => {
-        setIsSending(false);
-        setShowNotif(true);
-        setFormData({ name: '', email: '', message: '' });
-        setTimeout(() => setShowNotif(false), 3000);
-      })
-      .catch((error) => {
-        setIsSending(false);
-        alert('Failed to send message. Please try again.');
-        console.error('EmailJS Error:', error);
-      });
+        publicKey
+      );
+      
+      recordSubmission();
+      setIsSending(false);
+      console.log('Email sent successfully!'); // Debug log
+      showNotification('success', '🎉 Yay! Your message reached me. I’ll reply shortly!');
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      setIsSending(false);
+      console.error('EmailJS Error:', error); // Debug log
+      showNotification('error', '❌ Failed to send message. Please try again or contact me directly.');
+    }
   };
 
   return (
     <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-900">
       <style>{scrollbarHideStyle}</style>
+      
+      {/* Notification Portal - Ensure it's above everything */}
+      <AnimatePresence mode="wait">
+        {notification && (
+          <Notification
+            key="notification"
+            type={notification.type}
+            message={notification.message}
+            onClose={() => setNotification(null)}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="container mx-auto px-4">
         <motion.h2
           className="text-4xl font-extrabold text-center mb-12 text-gray-900 dark:text-white"
@@ -525,19 +658,6 @@ const Contact = () => {
           Get in <span className="text-blue-600 dark:text-blue-400">Touch</span>
         </motion.h2>
 
-        {/* Success Notification */}
-        {showNotif && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"
-          >
-            Message sent successfully! ✓
-          </motion.div>
-        )}
-
         <div className="flex flex-col lg:flex-row items-start justify-center gap-8 max-w-6xl mx-auto">
           {/* Contact Form */}
           <motion.div
@@ -548,7 +668,8 @@ const Contact = () => {
             transition={{ duration: 0.5 }}
           >
             <h3 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Send Me a Message</h3>
-            <div className="space-y-6">
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="name" className="block text-lg font-medium mb-2 text-gray-900 dark:text-white">
                   Name
@@ -604,8 +725,7 @@ const Contact = () => {
                 ></textarea>
               </div>
               <motion.button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isSending}
                 className="w-full py-3 px-6 rounded-lg bg-blue-600 dark:bg-blue-500 text-white font-semibold text-lg
                            hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200 shadow-md
@@ -616,7 +736,7 @@ const Contact = () => {
               >
                 {isSending ? 'Sending...' : 'Send Message'}
               </motion.button>
-            </div>
+            </form>
           </motion.div>
 
           {/* Right Side - Social & Stats */}
