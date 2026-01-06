@@ -51,7 +51,7 @@ const scrollbarHideStyle = `
 `;
 
 // Custom GitHub Contribution Chart Component
-const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
+const GitHubContributionChart = ({ apiUrl, githubToken, username, isDarkMode }) => {
   const [contributions, setContributions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -210,11 +210,22 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
 
   const getContributionColor = (count) => {
     if (count === -1) return 'bg-transparent'; // Empty cells for padding
-    if (count === 0) return 'bg-gray-800 border border-gray-700';
-    if (count < 3) return 'bg-green-900';
-    if (count < 6) return 'bg-green-700';
-    if (count < 9) return 'bg-green-600';
-    return 'bg-green-500';
+    
+    if (isDarkMode) {
+      // Dark mode colors
+      if (count === 0) return 'bg-gray-800 border border-gray-700';
+      if (count < 3) return 'bg-green-900';
+      if (count < 6) return 'bg-green-700';
+      if (count < 9) return 'bg-green-600';
+      return 'bg-green-500';
+    } else {
+      // Light mode colors
+      if (count === 0) return 'bg-gray-200 border border-gray-300';
+      if (count < 3) return 'bg-green-200';
+      if (count < 6) return 'bg-green-400';
+      if (count < 9) return 'bg-green-500';
+      return 'bg-green-600';
+    }
   };
 
   const renderContributionGrid = () => {
@@ -281,7 +292,7 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
 
   if (!apiUrl) {
     return (
-      <div className="overflow-x-auto pb-2 bg-[#0d1117] p-4 rounded-lg">
+      <div className={`overflow-x-auto pb-2 p-4 rounded-lg ${isDarkMode ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
         <img 
           src="https://ghchart.rshah.org/2ea043/rczrgz" 
           alt="GitHub Contribution Chart"
@@ -294,7 +305,7 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8 bg-[#0d1117] rounded-lg">
+      <div className={`flex items-center justify-center p-8 rounded-lg ${isDarkMode ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
       </div>
     );
@@ -302,11 +313,11 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-900/20 rounded-lg border border-red-500/30">
-        <p className="text-red-400 text-sm font-semibold mb-2">⚠️ API Error</p>
-        <p className="text-red-300 text-xs mb-3">{error}</p>
-        <details className="text-xs text-gray-400">
-          <summary className="cursor-pointer hover:text-gray-300 mb-2">Troubleshooting Tips</summary>
+      <div className={`p-4 rounded-lg border ${isDarkMode ? 'bg-red-900/20 border-red-500/30' : 'bg-red-100 border-red-300'}`}>
+        <p className={`text-sm font-semibold mb-2 ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>⚠️ API Error</p>
+        <p className={`text-xs mb-3 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>{error}</p>
+        <details className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <summary className={`cursor-pointer mb-2 ${isDarkMode ? 'hover:text-gray-300' : 'hover:text-gray-700'}`}>Troubleshooting Tips</summary>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Check your API URL in .env file</li>
             <li>Ensure API returns JSON format</li>
@@ -315,8 +326,8 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
             <li>Check for CORS issues</li>
           </ul>
         </details>
-        <p className="text-gray-400 text-xs mt-3">Using fallback chart...</p>
-        <div className="mt-4 overflow-x-auto pb-2 bg-[#0d1117] p-4 rounded-lg">
+        <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Using fallback chart...</p>
+        <div className={`mt-4 overflow-x-auto pb-2 p-4 rounded-lg ${isDarkMode ? 'bg-[#0d1117]' : 'bg-gray-100'}`}>
           <img 
             src="https://ghchart.rshah.org/2ea043/rczrgz" 
             alt="GitHub Contribution Chart"
@@ -329,20 +340,20 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
   }
 
   return (
-    <div className="bg-[#0d1117] p-3 rounded-lg border border-gray-700">
+    <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-[#0d1117] border-gray-700' : 'bg-gray-50 border-gray-300'}`}>
       {totalContributions > 0 && (
-        <div className="mb-3 text-xs text-gray-400">
+        <div className={`mb-3 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           {totalContributions} contributions in the last year
         </div>
       )}
       
-      <div className="overflow-x-auto scrollbar-custom pb-3">
+      <div className={`overflow-x-auto pb-3 ${isDarkMode ? 'scrollbar-custom' : 'scrollbar-custom-light'}`}>
         {/* Month Labels */}
         <div className="flex mb-1 min-w-max">
           {getMonths().map((month, i) => (
             <div 
               key={i} 
-              className="text-[10px] text-gray-400"
+              className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
               style={{ width: '43px' }}
             >
               {month.name}
@@ -375,16 +386,28 @@ const GitHubContributionChart = ({ apiUrl, githubToken, username }) => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-between mt-3 text-[10px] text-gray-400">
-        <span className="text-gray-500">Learn how we count contributions</span>
+      <div className={`flex items-center justify-between mt-3 text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+        <span className={isDarkMode ? 'text-gray-500' : 'text-gray-500'}>Learn how we count contributions</span>
         <div className="flex items-center gap-2">
           <span>Less</span>
           <div className="flex gap-1">
-            <div className="w-[8px] h-[8px] rounded-[1px] bg-gray-800 border border-gray-700"></div>
-            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-900"></div>
-            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-700"></div>
-            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-600"></div>
-            <div className="w-[8px] h-[8px] rounded-[1px] bg-green-500"></div>
+            {isDarkMode ? (
+              <>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-gray-800 border border-gray-700"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-900"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-700"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-600"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-500"></div>
+              </>
+            ) : (
+              <>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-gray-200 border border-gray-300"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-200"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-400"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-500"></div>
+                <div className="w-[8px] h-[8px] rounded-[1px] bg-green-600"></div>
+              </>
+            )}
           </div>
           <span>More</span>
         </div>
@@ -403,11 +426,31 @@ const Contact = () => {
   const [showNotif, setShowNotif] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Read from environment variables
   const GITHUB_API_URL = process.env.REACT_APP_GITHUB_API_URL || '';
   const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN || '';
   const GITHUB_USERNAME = process.env.REACT_APP_GITHUB_USERNAME || 'rczrgz';
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    
+    // Check initially
+    checkDarkMode();
+    
+    // Watch for changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
   // Update clock every second
   useEffect(() => {
@@ -654,7 +697,8 @@ const Contact = () => {
               <GitHubContributionChart 
                 apiUrl={GITHUB_API_URL} 
                 githubToken={GITHUB_TOKEN}
-                username={GITHUB_USERNAME} 
+                username={GITHUB_USERNAME}
+                isDarkMode={isDarkMode}
               />
               <div className="mt-2 text-center">
                 <a 
