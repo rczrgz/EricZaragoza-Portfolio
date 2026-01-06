@@ -644,7 +644,7 @@ const Contact = () => {
 
             {/* GitHub Contribution Graph */}
             <motion.div
-              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 h-[307px]"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -656,7 +656,7 @@ const Contact = () => {
                 githubToken={GITHUB_TOKEN}
                 username={GITHUB_USERNAME} 
               />
-              <div className="mt-4 text-center">
+              <div className="mt-2 text-center">
                 <a 
                   href={`https://github.com/${GITHUB_USERNAME}`}
                   target="_blank" 
