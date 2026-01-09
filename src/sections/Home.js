@@ -114,7 +114,7 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  
+  //all images
   const roles = [
     { text: 'Zaragoza', image: 'profile.jpg' },
     { text: 'Gamer', image: 'gamer.png' },
