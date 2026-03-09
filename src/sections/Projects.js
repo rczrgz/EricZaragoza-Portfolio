@@ -46,8 +46,8 @@ const projects = [
   {
   id: 5,
   title: 'Love To Dream',
-  description: 'E-commerce website enhancements and custom WooCommerce development for Love To Dream PH. Implemented shipping logic improvements, delivery option controls, and custom plugins to automate scheduling and regional shipping availability.',
-  image: 'project5.png',
+  description: 'Led the development and enhancement of the Love To Dream PH e-commerce platform using WordPress and WooCommerce. Built custom plugins and implemented advanced shipping logic, delivery scheduling automation, and regional shipping restrictions to improve operational efficiency and enhance the overall customer shopping experience.',
+  image: 'project-5.png',
   tags: ['WordPress','WooCommerce','Custom Plugin Development','Shipping Automation','PHP','JavaScript'],
   category: 'work',
   liveLink: 'https://lovetodream.ph/',
