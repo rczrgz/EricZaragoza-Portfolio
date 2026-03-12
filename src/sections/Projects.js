@@ -2,12 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Eye, X } from 'lucide-react';
 
-// Wrap the function:
-const getCurrentTitle = useCallback(() => {
-  const category = categories.find(cat => cat.id === activeCategory);
-  return category ? category.label : 'All Projects';
-}, [activeCategory]);
-
 const projects = [
   {
     id: 1,
@@ -50,26 +44,25 @@ const projects = [
     githubLink: '#',
   },
   {
-  id: 5,
-  title: 'Love To Dream',
-  description: 'Led the development and enhancement of the Love To Dream PH e-commerce platform using WordPress and WooCommerce. Built custom plugins and implemented advanced shipping logic, delivery scheduling automation, and regional shipping restrictions to improve operational efficiency and enhance the overall customer shopping experience.',
-  image: 'project-5.png',
-  tags: ['WordPress','WooCommerce','Custom Plugin Development','Shipping Automation','PHP','JavaScript'],
-  category: 'work',
-  liveLink: 'https://lovetodream.ph/',
-  githubLink: '#',
-},
-{
-  id: 6,
-  title: 'Mamas & Papas',
-  description: 'Custom WooCommerce development and maintenance for Mamas & Papas PH, focusing on shipping rule management, delivery method toggling, bug fixes, and performance optimizations to support high-traffic retail operations.',
-  image: 'project6.png',
-  tags: ['Shopify','Shipping Rules','E-commerce Optimization','Liquid',],
-  category: 'work',
-  liveLink: 'https://mamasandpapas.ph/',
-  githubLink: '#',
-},
-
+    id: 5,
+    title: 'Love To Dream',
+    description: 'Led the development and enhancement of the Love To Dream PH e-commerce platform using WordPress and WooCommerce. Built custom plugins and implemented advanced shipping logic, delivery scheduling automation, and regional shipping restrictions to improve operational efficiency and enhance the overall customer shopping experience.',
+    image: 'project-5.png',
+    tags: ['WordPress', 'WooCommerce', 'Custom Plugin Development', 'Shipping Automation', 'PHP', 'JavaScript'],
+    category: 'work',
+    liveLink: 'https://lovetodream.ph/',
+    githubLink: '#',
+  },
+  {
+    id: 6,
+    title: 'Mamas & Papas',
+    description: 'Custom WooCommerce development and maintenance for Mamas & Papas PH, focusing on shipping rule management, delivery method toggling, bug fixes, and performance optimizations to support high-traffic retail operations.',
+    image: 'project6.png',
+    tags: ['Shopify', 'Shipping Rules', 'E-commerce Optimization', 'Liquid'],
+    category: 'work',
+    liveLink: 'https://mamasandpapas.ph/',
+    githubLink: '#',
+  },
 ];
 
 const categories = [
@@ -139,7 +132,7 @@ const ProjectModal = ({ project, onClose }) => {
           <h3 className="text-2xl md:text-3xl font-bold mb-3 text-gray-900 dark:text-white">
             {project.title}
           </h3>
-          
+
           <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm md:text-base leading-relaxed">
             {project.description}
           </p>
@@ -169,7 +162,7 @@ const ProjectModal = ({ project, onClose }) => {
                 <span>Live Demo</span>
               </a>
             )}
-            
+
             {project.githubLink !== '#' && (
               <a
                 href={project.githubLink}
@@ -194,14 +187,14 @@ const Projects = () => {
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
 
-  const filteredProjects = activeCategory === 'all' 
-    ? projects 
+  const filteredProjects = activeCategory === 'all'
+    ? projects
     : projects.filter(project => project.category === activeCategory);
 
-  const getCurrentTitle = () => {
+  const getCurrentTitle = useCallback(() => {
     const category = categories.find(cat => cat.id === activeCategory);
     return category ? category.label : 'All Projects';
-  };
+  }, [activeCategory]);
 
   // Typing animation effect
   React.useEffect(() => {
@@ -280,9 +273,9 @@ const Projects = () => {
             exit="exit"
             variants={{
               hidden: { opacity: 0 },
-              show: { 
-                opacity: 1, 
-                transition: { staggerChildren: 0.1 } 
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1 }
               },
               exit: { opacity: 0 }
             }}
@@ -315,7 +308,7 @@ const Projects = () => {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   )}
-                  
+
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute bottom-0 left-0 right-0 p-6">

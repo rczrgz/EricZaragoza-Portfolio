@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const roles = [
+  { text: 'Zaragoza', image: 'profile.jpg' },
+  { text: 'Gamer', image: 'gamer.png' },
+  { text: 'Eager to Learn', image: 'eager.jpg' },
+  { text: 'Programmer', image: 'programmer.jpg' }
+];
+
 const NetworkBackground = () => {
   const canvasRef = useRef(null);
-  // const [particles, setParticles] = useState([]);
   const mousePos = useRef({ x: 0, y: 0 });
   const animationRef = useRef(null);
 
@@ -15,10 +21,9 @@ const NetworkBackground = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Create particles
     const particleCount = 80;
     const newParticles = [];
-    
+
     for (let i = 0; i < particleCount; i++) {
       newParticles.push({
         x: Math.random() * canvas.width,
@@ -28,7 +33,6 @@ const NetworkBackground = () => {
         radius: Math.random() * 2 + 1
       });
     }
-    setParticles(newParticles);
 
     const handleMouseMove = (e) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
@@ -45,48 +49,42 @@ const NetworkBackground = () => {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw particles
       newParticles.forEach((particle, i) => {
-        // Move particles
         particle.x += particle.vx;
         particle.y += particle.vy;
 
-        // Bounce off edges
         if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
 
-        // Mouse interaction
         const dx = mousePos.current.x - particle.x;
         const dy = mousePos.current.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance < 150) {
           const angle = Math.atan2(dy, dx);
           particle.x -= Math.cos(angle) * 0.5;
           particle.y -= Math.sin(angle) * 0.5;
         }
 
-        // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = document.documentElement.classList.contains('dark') 
-          ? 'rgba(147, 197, 253, 0.8)' 
+        ctx.fillStyle = document.documentElement.classList.contains('dark')
+          ? 'rgba(147, 197, 253, 0.8)'
           : 'rgba(59, 130, 246, 0.6)';
         ctx.fill();
 
-        // Draw connections
         for (let j = i + 1; j < newParticles.length; j++) {
-          const dx = newParticles[j].x - particle.x;
-          const dy = newParticles[j].y - particle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const dx2 = newParticles[j].x - particle.x;
+          const dy2 = newParticles[j].y - particle.y;
+          const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
 
-          if (distance < 120) {
+          if (dist2 < 120) {
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(newParticles[j].x, newParticles[j].y);
             ctx.strokeStyle = document.documentElement.classList.contains('dark')
-              ? `rgba(147, 197, 253, ${0.2 * (1 - distance / 120)})`
-              : `rgba(59, 130, 246, ${0.15 * (1 - distance / 120)})`;
+              ? `rgba(147, 197, 253, ${0.2 * (1 - dist2 / 120)})`
+              : `rgba(59, 130, 246, ${0.15 * (1 - dist2 / 120)})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -110,23 +108,15 @@ const NetworkBackground = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
 };
 
-const roles = [
-    { text: 'Zaragoza', image: 'profile.jpg' },
-    { text: 'Gamer', image: 'gamer.png' },
-    { text: 'Eager to Learn', image: 'eager.jpg' },
-    { text: 'Programmer', image: 'programmer.jpg' }
-  ];
-
 const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  //all images
 
   useEffect(() => {
     const currentRole = roles[currentIndex].text;
     const typingSpeed = isDeleting ? 30 : 80;
-    const pauseTime = isDeleting ? 300 : 2500;
+    const pauseTime = 2500;
 
     const timer = setTimeout(() => {
       if (!isDeleting) {
@@ -146,11 +136,12 @@ const Home = () => {
     }, typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, currentIndex, roles]);
+  }, [displayText, isDeleting, currentIndex]);
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-950">
       <NetworkBackground />
-      
+
       <div className="container mx-auto text-center px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -170,7 +161,7 @@ const Home = () => {
               transition={{ duration: 0.5, type: 'spring', stiffness: 100 }}
             />
           </AnimatePresence>
-          
+
           <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight">
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
               Eric {displayText}
@@ -181,7 +172,7 @@ const Home = () => {
               />
             </span>
           </h1>
-          
+
           <p className="text-xl md:text-3xl font-light text-gray-700 dark:text-gray-300 max-w-2xl">
             Explore. Create. Repeat.
           </p>
