@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const NetworkBackground = () => {
   const canvasRef = useRef(null);
-  const [particles, setParticles] = useState([]);
+  // const [particles, setParticles] = useState([]);
   const mousePos = useRef({ x: 0, y: 0 });
   const animationRef = useRef(null);
 
@@ -110,17 +110,18 @@ const NetworkBackground = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
 };
 
-const Home = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [displayText, setDisplayText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-  //all images
-  const roles = [
+const roles = [
     { text: 'Zaragoza', image: 'profile.jpg' },
     { text: 'Gamer', image: 'gamer.png' },
     { text: 'Eager to Learn', image: 'eager.jpg' },
     { text: 'Programmer', image: 'programmer.jpg' }
   ];
+
+const Home = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayText, setDisplayText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  //all images
 
   useEffect(() => {
     const currentRole = roles[currentIndex].text;
@@ -145,7 +146,7 @@ const Home = () => {
     }, typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [displayText, isDeleting, currentIndex]);
+  }, [displayText, isDeleting, currentIndex, roles]);
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-950">
       <NetworkBackground />

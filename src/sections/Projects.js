@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Eye, X } from 'lucide-react';
+
+// Wrap the function:
+const getCurrentTitle = useCallback(() => {
+  const category = categories.find(cat => cat.id === activeCategory);
+  return category ? category.label : 'All Projects';
+}, [activeCategory]);
 
 const projects = [
   {
@@ -215,7 +221,7 @@ const Projects = () => {
     }, 80);
 
     return () => clearInterval(typingInterval);
-  }, [activeCategory]);
+  }, [activeCategory, getCurrentTitle]);
 
   return (
     <section id='projects' className="py-20 bg-gray-50 dark:bg-gray-900 min-h-screen">
