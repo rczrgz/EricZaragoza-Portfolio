@@ -8,6 +8,7 @@ import Skills from './sections/Skills';
 import Projects from './sections/Projects';
 import Contact from './sections/Contact';
 import Footer from './components/Footer'; // Optional but good practice
+import Chatbot from './components/Chatbot.jsx';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         </main>
         <Footer />
         <ThemeToggle />
+        <Chatbot />
       </div>
     </ThemeProvider>
   );
