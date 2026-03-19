@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useContext } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
+import { useContext } from "react";
 
 const SYSTEM_PROMPT = `You are a helpful assistant for Eric Zaragoza's portfolio website.
 Answer questions about his skills, projects, and experience.
@@ -39,7 +40,6 @@ SKILLS:
 
 If asked for contact info, provide Eric's email or suggest visiting the Contact section.`;
 
-// ✅ Groq API config (replaces Gemini)
 const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
@@ -50,7 +50,21 @@ const INITIAL_MESSAGES = [
 
 export default function Chatbot() {
   const { theme } = useContext(ThemeContext);
-  const isDark = theme === "dark";
+
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
@@ -58,7 +72,7 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const bottomRef = useRef(null);
-  const historyRef = useRef([]); // ✅ Groq uses simple {role, content} format
+  const historyRef = useRef([]);
   const lastSentRef = useRef(0);
 
   useEffect(() => {
@@ -77,7 +91,6 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { role: "user", text: userMessage }]);
     setLoading(true);
 
-    // ✅ Add user message to Groq-format history
     historyRef.current.push({ role: "user", content: userMessage });
 
     try {
@@ -85,12 +98,12 @@ export default function Chatbot() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}` // ✅ Groq uses Bearer token
+          "Authorization": `Bearer ${GROQ_API_KEY}`
         },
         body: JSON.stringify({
           model: GROQ_MODEL,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT }, // ✅ System prompt goes here
+            { role: "system", content: SYSTEM_PROMPT },
             ...historyRef.current
           ],
           max_tokens: 300,
@@ -107,14 +120,16 @@ export default function Chatbot() {
       const data = await response.json();
       const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't get a response.";
 
-      // ✅ Add assistant reply to history
       historyRef.current.push({ role: "assistant", content: reply });
 
       setIsBusy(false);
       setMessages(prev => [...prev, { role: "assistant", text: reply }]);
     } catch (error) {
       console.error("Chatbot error:", error);
-      const isRateLimit = error.message?.includes("429") || error.message?.includes("quota") || error.message?.includes("rate");
+      const isRateLimit =
+        error.message?.includes("429") ||
+        error.message?.includes("quota") ||
+        error.message?.includes("rate");
 
       if (isRateLimit) {
         setIsBusy(true);
@@ -159,11 +174,14 @@ export default function Chatbot() {
   };
 
   return (
-    <div key={theme} style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 1000 }}>
-
-      {/* Chat Window */}
+    <>
+      {/* ✅ Chat Window — independently fixed, anchored bottom-right above button */}
       {isOpen && (
         <div style={{
+          position: "fixed",
+          bottom: "90px",   // sits above the 56px button + 10px gap
+          right: "24px",
+          zIndex: 1000,
           width: "340px",
           height: "480px",
           background: c.chatBg,
@@ -171,9 +189,9 @@ export default function Chatbot() {
           boxShadow: `0 8px 32px ${c.shadow}`,
           display: "flex",
           flexDirection: "column",
-          marginBottom: "12px",
           border: `1px solid ${c.chatBorder}`,
-          overflow: "hidden"
+          overflow: "hidden",
+          transition: "background 0.3s ease, border-color 0.3s ease"
         }}>
 
           {/* Header */}
@@ -239,7 +257,7 @@ export default function Chatbot() {
                 color: "#fff", width: "28px", height: "28px",
                 borderRadius: "50%", cursor: "pointer", fontSize: "14px",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0
+                flexShrink: 0, outline: "none"
               }}
             >
               ✕
@@ -250,7 +268,8 @@ export default function Chatbot() {
           <div style={{
             flex: 1, overflowY: "auto", padding: "12px",
             display: "flex", flexDirection: "column", gap: "8px",
-            background: c.messagesBg
+            background: c.messagesBg,
+            transition: "background 0.3s ease"
           }}>
             {messages.map((msg, i) => (
               <div key={i} style={{
@@ -260,7 +279,8 @@ export default function Chatbot() {
                 padding: "10px 14px",
                 borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
                 maxWidth: "82%", fontSize: "13.5px", lineHeight: "1.5",
-                boxShadow: `0 1px 3px ${c.shadow}`
+                boxShadow: `0 1px 3px ${c.shadow}`,
+                transition: "background 0.3s ease, color 0.3s ease"
               }}>
                 {msg.text}
               </div>
@@ -271,7 +291,8 @@ export default function Chatbot() {
                 alignSelf: "flex-start", background: c.assistantBubble,
                 padding: "10px 14px", borderRadius: "16px 16px 16px 4px",
                 fontSize: "13px", color: c.typingText,
-                boxShadow: `0 1px 3px ${c.shadow}`
+                boxShadow: `0 1px 3px ${c.shadow}`,
+                transition: "background 0.3s ease"
               }}>
                 Typing...
               </div>
@@ -283,13 +304,16 @@ export default function Chatbot() {
           {messages.length === 1 && (
             <div style={{
               padding: "8px 12px", display: "flex", flexWrap: "wrap", gap: "6px",
-              background: c.suggestArea, borderTop: `1px solid ${c.divider}`
+              background: c.suggestArea, borderTop: `1px solid ${c.divider}`,
+              transition: "background 0.3s ease"
             }}>
               {["What are Eric's skills?", "Show me his projects", "How to contact Eric?"].map((q) => (
                 <button key={q} onClick={() => sendMessage(q)} style={{
                   fontSize: "11px", padding: "4px 10px", borderRadius: "20px",
                   border: `1px solid ${c.suggestBorder}`,
-                  background: c.suggestBg, color: c.suggestText, cursor: "pointer"
+                  background: c.suggestBg, color: c.suggestText, cursor: "pointer",
+                  outline: "none",
+                  transition: "background 0.3s ease, color 0.3s ease"
                 }}>
                   {q}
                 </button>
@@ -300,7 +324,8 @@ export default function Chatbot() {
           {/* Input */}
           <div style={{
             padding: "12px", borderTop: `1px solid ${c.divider}`,
-            display: "flex", gap: "8px", background: c.chatBg
+            display: "flex", gap: "8px", background: c.chatBg,
+            transition: "background 0.3s ease"
           }}>
             <input
               value={input}
@@ -310,7 +335,8 @@ export default function Chatbot() {
               style={{
                 flex: 1, padding: "9px 14px", borderRadius: "24px",
                 border: `1px solid ${c.inputBorder}`, fontSize: "13.5px",
-                outline: "none", background: c.inputBg, color: c.inputText
+                outline: "none", background: c.inputBg, color: c.inputText,
+                transition: "background 0.3s ease, color 0.3s ease, border-color 0.3s ease"
               }}
             />
             <button
@@ -319,10 +345,11 @@ export default function Chatbot() {
               style={{
                 width: "38px", height: "38px", borderRadius: "50%",
                 background: loading ? (isDark ? "#4f46e5" : "#c7d2fe") : c.primary,
-                color: "#fff", border: "none",
+                color: "#fff", border: "none", outline: "none",
                 cursor: loading ? "not-allowed" : "pointer",
                 fontSize: "16px", display: "flex",
-                alignItems: "center", justifyContent: "center", flexShrink: 0
+                alignItems: "center", justifyContent: "center", flexShrink: 0,
+                transition: "background 0.3s ease"
               }}
             >
               ↑
@@ -331,22 +358,34 @@ export default function Chatbot() {
         </div>
       )}
 
-      {/* Toggle Button */}
+      {/* ✅ Toggle Button — independently fixed, never moves regardless of isOpen */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(prev => !prev)}
         style={{
-          width: "56px", height: "56px", borderRadius: "50%",
+          position: "fixed",
+          bottom: "24px",
+          right: "24px",
+          zIndex: 1000,
+          width: "56px",
+          height: "56px",
+          borderRadius: "50%",
           background: `linear-gradient(135deg, ${c.primary}, #8b5cf6)`,
-          border: "none", color: "#fff", fontSize: "24px", cursor: "pointer",
+          border: "none",
+          outline: "none",
+          color: "#fff",
+          fontSize: "24px",
+          cursor: "pointer",
           boxShadow: `0 4px 20px ${isDark ? "rgba(129,140,248,0.4)" : "rgba(99,102,241,0.4)"}`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          transition: "transform 0.2s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "transform 0.2s ease, background 0.3s ease",
         }}
         onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
         onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
       >
-        {isOpen ? "✕" : "💬"}
+        💬
       </button>
-    </div>
+    </>
   );
 }
