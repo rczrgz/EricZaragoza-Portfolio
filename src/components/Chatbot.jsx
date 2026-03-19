@@ -39,19 +39,10 @@ SKILLS:
 
 If asked for contact info, provide Eric's email or suggest visiting the Contact section.`;
 
-const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
-
-const INITIAL_HISTORY = [
-  {
-    role: "user",
-    parts: [{ text: `[SYSTEM INSTRUCTIONS - follow these for all replies]\n${SYSTEM_PROMPT}` }]
-  },
-  {
-    role: "model",
-    parts: [{ text: "Got it! I'm ready to answer questions about Eric Zaragoza's portfolio, skills, projects, and experience." }]
-  }
-];
+// ✅ Groq API config (replaces Gemini)
+const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY;
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 const INITIAL_MESSAGES = [
   { role: "assistant", text: "Hi! I'm Eric's assistant. Ask me anything about his work 👋" }
@@ -65,9 +56,9 @@ export default function Chatbot() {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isBusy, setIsBusy] = useState(false); // true = yellow, false = green
+  const [isBusy, setIsBusy] = useState(false);
   const bottomRef = useRef(null);
-  const historyRef = useRef([...INITIAL_HISTORY]);
+  const historyRef = useRef([]); // ✅ Groq uses simple {role, content} format
   const lastSentRef = useRef(0);
 
   useEffect(() => {
@@ -86,18 +77,24 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { role: "user", text: userMessage }]);
     setLoading(true);
 
-    historyRef.current.push({
-      role: "user",
-      parts: [{ text: userMessage }]
-    });
+    // ✅ Add user message to Groq-format history
+    historyRef.current.push({ role: "user", content: userMessage });
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(GROQ_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}` // ✅ Groq uses Bearer token
+        },
         body: JSON.stringify({
-          contents: historyRef.current,
-          generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
+          model: GROQ_MODEL,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT }, // ✅ System prompt goes here
+            ...historyRef.current
+          ],
+          max_tokens: 300,
+          temperature: 0.7
         })
       });
 
@@ -108,22 +105,19 @@ export default function Chatbot() {
       }
 
       const data = await response.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't get a response.";
+      const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't get a response.";
 
-      historyRef.current.push({
-        role: "model",
-        parts: [{ text: reply }]
-      });
+      // ✅ Add assistant reply to history
+      historyRef.current.push({ role: "assistant", content: reply });
 
-      // Successful reply — turn green
       setIsBusy(false);
       setMessages(prev => [...prev, { role: "assistant", text: reply }]);
     } catch (error) {
       console.error("Chatbot error:", error);
-      const isRateLimit = error.message?.includes("429") || error.message?.includes("quota");
+      const isRateLimit = error.message?.includes("429") || error.message?.includes("quota") || error.message?.includes("rate");
 
       if (isRateLimit) {
-        setIsBusy(true); // turn yellow
+        setIsBusy(true);
         setMessages(prev => [...prev, {
           role: "assistant",
           text: "I'm a bit busy right now. Please try again in a moment! ⏳"
@@ -216,7 +210,6 @@ export default function Chatbot() {
                 }}>
                   EZ
                 </div>
-                {/* Status dot — green = online, yellow = busy */}
                 <div style={{
                   position: "absolute", bottom: "1px", right: "1px",
                   width: "11px", height: "11px", borderRadius: "50%",
