@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { ThemeContext } from "../context/ThemeContext";
 import { useContext } from "react";
+import { ThemeContext } from "../context/ThemeContext";
 
 const SYSTEM_PROMPT = `You are a helpful assistant for Eric Zaragoza's portfolio website.
 Answer questions about his skills, projects, and experience.
@@ -49,6 +49,7 @@ const INITIAL_MESSAGES = [
 ];
 
 export default function Chatbot() {
+  // eslint-disable-next-line no-unused-vars
   const { theme } = useContext(ThemeContext);
 
   const [isDark, setIsDark] = useState(
@@ -175,11 +176,10 @@ export default function Chatbot() {
 
   return (
     <>
-      {/* ✅ Chat Window — independently fixed, anchored bottom-right above button */}
       {isOpen && (
         <div style={{
           position: "fixed",
-          bottom: "90px",   // sits above the 56px button + 10px gap
+          bottom: "90px",
           right: "24px",
           zIndex: 1000,
           width: "340px",
@@ -358,7 +358,7 @@ export default function Chatbot() {
         </div>
       )}
 
-      {/* ✅ Toggle Button — independently fixed, never moves regardless of isOpen */}
+      {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(prev => !prev)}
         style={{
