@@ -138,7 +138,7 @@ const Header = () => {
       <motion.header
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        transition={{ duration: 0.1, ease: 'easeOut' }}
         className={`fixed top-0 left-0 right-0 z-[200] p-4 transition-all duration-300
           ${
             isScrolled || isMenuOpen
