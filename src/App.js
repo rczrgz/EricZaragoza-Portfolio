@@ -1,6 +1,5 @@
 import React from 'react';
 import { ThemeProvider } from './context/ThemeContext';
-import ThemeToggle from './components/ThemeToggle';
 import Header from './components/Header'; // We'll create this next
 import Home from './sections/Home.js';
 import About from './sections/About';
@@ -23,7 +22,6 @@ function App() {
           <Contact />
         </main>
         <Footer />
-        <ThemeToggle />
         <Chatbot />
       </div>
     </ThemeProvider>

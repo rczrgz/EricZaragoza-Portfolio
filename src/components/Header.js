@@ -147,18 +147,19 @@ const Header = () => {
           }`}
       >
         <nav className="container mx-auto flex items-center justify-between relative">
+
           {/* Logo */}
           <div className="flex-shrink-0 relative z-[180]">
             <a href="#home" className="text-2xl font-bold">
               <img
                 src={isDarkMode ? '/darklogo.png' : '/lightlogo.png'}
                 alt="EZ Logo"
-                className="h-8 md:h-12 lg:h-20 w-auto transition-opacity duration-300"
+                className="h-12 md:h-12 lg:h-20 w-auto transition-opacity duration-300"
               />
             </a>
           </div>
 
-          {/* Desktop Navigation - Aligned Right */}
+          {/* Desktop Navigation */}
           <ul className="hidden md:flex items-center space-x-6 lg:space-x-8 ml-auto mr-8">
             {navItems.map((item, index) => (
               <motion.li
@@ -171,7 +172,7 @@ const Header = () => {
                   href={item.href}
                   onClick={handleNavLinkClick}
                   className="text-lg font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-500 dark:hover:text-blue-400 relative group transition-colors duration-300"
-                >
+                  >
                   {item.name}
                   <span className="absolute left-0 bottom-0 w-full h-0.5 bg-blue-500 dark:bg-blue-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                 </a>
@@ -179,50 +180,58 @@ const Header = () => {
             ))}
           </ul>
 
-          {/* Theme Toggle (Desktop Only) & Mobile Menu Button */}
-          <div className="flex items-center gap-2 md:gap-4 relative z-[180]">
-            {/* Desktop Only */}
+          {/* Right Side */}
+          <div className="flex items-center gap-3 relative z-[180]">
+
+            {/* Desktop Toggle */}
             <div className="hidden md:flex">
               <ThemeToggle />
             </div>
 
-            {/* Mobile Burger */}
-            <motion.button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden flex-shrink-0 text-gray-800 dark:text-gray-100 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 relative z-[180]"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Toggle navigation menu"
-            >
-              <AnimatePresence mode="wait">
-                {isMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X className="h-7 w-7" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="h-7 w-7" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+            {/* Mobile: Toggle + Burger side by side */}
+            <div className="flex md:hidden items-center gap-2">
+              <ThemeToggle />
+              <motion.button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="flex-shrink-0 p-2 rounded-full
+                           bg-gray-200 dark:bg-gray-700
+                           text-gray-800 dark:text-gray-100
+                           focus:outline-none focus:ring-2 focus:ring-blue-400"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Toggle navigation menu"
+              >
+                <AnimatePresence mode="wait">
+                  {isMenuOpen ? (
+                    <motion.div
+                      key="close"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <X className="h-7 w-7" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="menu"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Menu className="h-7 w-7" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </div>
+
           </div>
         </nav>
       </motion.header>
 
-      {/* Mobile Menu (Slide from Right, Links Right-Aligned) */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -235,7 +244,7 @@ const Header = () => {
               className="fixed inset-0 bg-black/50 z-[160] md:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
-            
+
             {/* Menu Panel */}
             <motion.div
               initial={{ x: '100%' }}
@@ -252,13 +261,13 @@ const Header = () => {
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 30 }}
-                    transition={{ 
+                    transition={{
                       delay: 0.05 * index,
                       duration: 0.3,
-                      ease: 'easeOut'
+                      ease: 'easeOut',
                     }}
                   >
-                    <a
+                   <a 
                       href={item.href}
                       onClick={handleNavLinkClick}
                       className="text-3xl font-bold hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
@@ -268,17 +277,6 @@ const Header = () => {
                   </motion.li>
                 ))}
               </ul>
-              
-              {/* Mobile Theme Toggle */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="absolute bottom-12"
-              >
-                <ThemeToggle />
-              </motion.div>
             </motion.div>
           </>
         )}
