@@ -135,10 +135,7 @@ const Header = () => {
 
   return (
     <>
-      <motion.header
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.1, ease: 'easeOut' }}
+      <header
         className={`fixed top-0 left-0 right-0 z-[200] p-4 transition-all duration-300
           ${
             isScrolled || isMenuOpen
@@ -166,7 +163,7 @@ const Header = () => {
                 key={item.name}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + index * 0.05 }}
+                transition={{ delay: 0, duration: 0.1 }}
               >
                 <a
                   href={item.href}
@@ -208,7 +205,7 @@ const Header = () => {
                       initial={{ rotate: -90, opacity: 0 }}
                       animate={{ rotate: 0, opacity: 1 }}
                       exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.1 }}
                     >
                       <X className="h-7 w-7" />
                     </motion.div>
@@ -218,7 +215,7 @@ const Header = () => {
                       initial={{ rotate: 90, opacity: 0 }}
                       animate={{ rotate: 0, opacity: 1 }}
                       exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.1 }}
                     >
                       <Menu className="h-7 w-7" />
                     </motion.div>
@@ -229,7 +226,7 @@ const Header = () => {
 
           </div>
         </nav>
-      </motion.header>
+      </header>
 
       {/* Mobile Menu */}
       <AnimatePresence>
