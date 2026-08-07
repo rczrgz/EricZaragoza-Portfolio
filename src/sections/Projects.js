@@ -63,6 +63,26 @@ const projects = [
     liveLink: 'https://mamasandpapas.ph/',
     githubLink: '#',
   },
+  {
+    id: 7,
+    title: 'Kids & Baby',
+    description: 'A Shopify markdown outlet storefront consolidating end-of-season stock across Mamas & Papas, Love To Dream, and Kiddimoto. Built a collection-aware filtering system in Liquid where every category renders its own tailored filter set derived from product tags — apparel surfaces size and age ranges while gear and toys surface their own relevant attributes — replacing a single generic filter bar with filters that actually fit each catalog section.',
+    image: 'project7.png',
+    tags: ['Shopify', 'Liquid', 'Tag-Based Filtering', 'Dynamic Collection Filters', 'JavaScript', 'E-commerce'],
+    category: 'work',
+    liveLink: 'https://kidsandbabygroup.myshopify.com/',
+    githubLink: '#',
+  },
+  {
+    id: 8,
+    title: 'PICPA Ireland',
+    description: 'Part-time web developer for PICPA Ireland, the chapter connecting Filipino accountants and finance professionals across Ireland and Europe. Built a suite of custom WordPress plugins shaped around how the organisation actually operates — member registration and account management, event listings and sign-ups, and newsletter publishing — rather than bending their workflows to fit off-the-shelf solutions.',
+    image: 'project8.png',
+    tags: ['WordPress', 'Custom Plugin Development', 'PHP', 'Membership System', 'Events Management', 'MySQL'],
+    category: 'freelance',
+    liveLink: 'https://picpaireland.ie/',
+    githubLink: '#',
+  },
 ];
 
 const categories = [
@@ -70,6 +90,7 @@ const categories = [
   { id: 'school', label: 'School Projects' },
   { id: 'internship', label: 'Internship Projects' },
   { id: 'work', label: 'Work Projects' },
+  { id: 'freelance', label: 'Freelance Projects' },
 ];
 
 const ProjectModal = ({ project, onClose }) => {
