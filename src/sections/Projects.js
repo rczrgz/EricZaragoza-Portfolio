@@ -76,7 +76,7 @@ const projects = [
   {
     id: 8,
     title: 'PICPA Ireland',
-    description: 'Part-time web developer for PICPA Ireland, the chapter connecting Filipino accountants and finance professionals across Ireland and Europe. Built a suite of custom WordPress plugins shaped around how the organisation actually operates — member registration and account management, event listings and sign-ups, and newsletter publishing — rather than bending their workflows to fit off-the-shelf solutions.',
+    description: 'Built the PICPA Ireland website — a hub for Filipino accountants and finance professionals across Ireland and Europe — on a contract with Pixel Profile. Developed a full custom WordPress plugin suite: member registration and account management, event listings with sign-up flows, and a newsletter system — each one designed to match exactly how the organisation runs day to day, without pushing them into a rigid off-the-shelf box.',
     image: 'project8.png',
     tags: ['WordPress', 'Custom Plugin Development', 'PHP', 'Membership System', 'Events Management', 'MySQL'],
     category: 'freelance',
