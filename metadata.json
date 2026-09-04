@@ -1,0 +1,6 @@
+{
+  "name": "Eric Zaragoza Portfolio",
+  "description": "Personal portfolio for software engineer Eric Zaragoza featuring projects, skills, experience, and an interactive assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

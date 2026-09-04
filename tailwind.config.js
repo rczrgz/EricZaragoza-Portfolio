@@ -6,28 +6,39 @@ export const darkMode = 'class';
 export const theme = {
     extend: {
         fontFamily: {
-            sans: ['Inter', 'sans-serif'], // Example font
+            display: ['Syne', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
         },
         colors: {
+            brand: {
+                accent: '#ccff00',
+                emerald: '#059669',
+                dark: '#08090d',
+                darker: '#040507',
+                card: '#10121a',
+                border: '#1b1f2b',
+                muted: '#7e8499',
+            },
             primary: {
-                light: '#6366f1', // Indigo 500
-                dark: '#818cf8', // Indigo 400
+                light: '#0a0c10',
+                dark: '#f3f4f6',
             },
             secondary: {
-                light: '#fde047', // Yellow 300
-                dark: '#facc15', // Yellow 400
+                light: '#16a34a',
+                dark: '#ccff00',
             },
             background: {
-                light: '#ffffff', // White
-                dark: '#1a202c', // Dark Gray
+                light: '#f7f8fa',
+                dark: '#08090d',
             },
             card: {
-                light: '#f3f4f6', // Gray 100
-                dark: '#2d3748', // Dark Grayish Blue
+                light: '#ffffff',
+                dark: '#10121a',
             },
             text: {
-                light: '#1f2937', // Gray 900
-                dark: '#e2e8f0', // Gray 200
+                light: '#0c0e14',
+                dark: '#f0f2f7',
             },
         },
     },

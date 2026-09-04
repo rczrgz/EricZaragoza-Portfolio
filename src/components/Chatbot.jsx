@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquare, X, Send, Sparkles, Terminal, ArrowUpRight } from "lucide-react";
 
 const SYSTEM_PROMPT = `You're Eric Zaragoza's assistant — you chat with people who visit his portfolio and help them get to know his work. You talk ABOUT Eric, not as him. Call him "Eric" or "he."
 
@@ -71,43 +71,58 @@ If someone asks what Eric is strongest at: his deepest experience is in e-commer
 
 const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+// Candidate models in prioritized order based on Groq platform availability
+const CANDIDATE_MODELS = [
+  process.env.REACT_APP_GROQ_MODEL,
+  "qwen/qwen3.8-27b",
+  "openai/gpt-oss-120b",
+  "qwen/qwen3.6-27b",
+  "llama-3.1-8b-instant",
+  "llama-3.3-70b-versatile",
+].filter(Boolean);
+
+const DEFAULT_MODEL = CANDIDATE_MODELS[0] || "qwen/qwen3.8-27b";
 
 const INITIAL_MESSAGES = [
-  { role: "assistant", text: "Hey there! I'm Eric's assistant — happy to tell you about his work, his projects, or how to reach him 👋" }
+  {
+    role: "assistant",
+    text: "Greetings. I'm Eric's digital concierge. Inquire about his client e-commerce architecture, honors degree, stack proficiency, or commission availability.",
+  },
+];
+
+const SUGGESTED_QUERIES = [
+  "What is his strongest skill?",
+  "Tell me about his e-commerce work",
+  "Is he open to new projects?",
 ];
 
 export default function Chatbot() {
-  // eslint-disable-next-line no-unused-vars
-  const { theme } = useContext(ThemeContext);
-
-  const [isDark, setIsDark] = useState(
-    document.documentElement.classList.contains("dark")
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
-
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
+  const [currentModel, setCurrentModel] = useState(DEFAULT_MODEL);
+  const activeModelRef = useRef(DEFAULT_MODEL);
   const bottomRef = useRef(null);
   const historyRef = useRef([]);
   const lastSentRef = useRef(0);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loading]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   const sendMessage = async (overrideMessage) => {
     const now = Date.now();
@@ -118,42 +133,95 @@ export default function Chatbot() {
     if (!userMessage || loading) return;
 
     setInput("");
-    setMessages(prev => [...prev, { role: "user", text: userMessage }]);
+    setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
     setLoading(true);
 
     historyRef.current.push({ role: "user", content: userMessage });
 
     try {
-      const response = await fetch(GROQ_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: GROQ_MODEL,
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...historyRef.current
-          ],
-          max_tokens: 300,
-          temperature: 0.4
-        })
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        console.error("API Error:", err);
-        throw new Error(err?.error?.message || `HTTP ${response.status}`);
+      if (!GROQ_API_KEY) {
+        throw new Error("API key not configured");
       }
 
-      const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't get a response.";
+      // Try active model first, then fall back to other available candidates if model access changes
+      const modelsToTry = [
+        activeModelRef.current,
+        ...CANDIDATE_MODELS.filter((m) => m !== activeModelRef.current),
+      ];
+
+      let successfulResponse = null;
+      let lastError = null;
+
+      for (const model of modelsToTry) {
+        try {
+          const response = await fetch(GROQ_API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${GROQ_API_KEY}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                ...historyRef.current,
+              ],
+              max_tokens: 300,
+              temperature: 0.4,
+            }),
+          });
+
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            const errMsg = err?.error?.message || `HTTP ${response.status}`;
+            const isModelAccessError =
+              response.status === 404 ||
+              response.status === 400 ||
+              errMsg.toLowerCase().includes("model") ||
+              errMsg.toLowerCase().includes("access");
+
+            if (isModelAccessError) {
+              lastError = new Error(errMsg);
+              continue;
+            }
+            throw new Error(errMsg);
+          }
+
+          const data = await response.json();
+          activeModelRef.current = model;
+          setCurrentModel(model);
+          successfulResponse = data;
+          break;
+        } catch (fetchErr) {
+          lastError = fetchErr;
+          const errMsg = fetchErr.message || "";
+          if (
+            errMsg.toLowerCase().includes("model") ||
+            errMsg.toLowerCase().includes("access")
+          ) {
+            continue;
+          }
+          throw fetchErr;
+        }
+      }
+
+      if (!successfulResponse) {
+        throw lastError || new Error("Failed to receive telemetry response");
+      }
+
+      let reply =
+        successfulResponse.choices?.[0]?.message?.content ||
+        "I was unable to retrieve a response at this moment.";
+
+      // Strip reasoning thought tags if returned by reasoning models
+      reply = reply.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+      if (!reply) {
+        reply = "I was unable to retrieve a response at this moment.";
+      }
 
       historyRef.current.push({ role: "assistant", content: reply });
-
       setIsBusy(false);
-      setMessages(prev => [...prev, { role: "assistant", text: reply }]);
+      setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
     } catch (error) {
       console.error("Chatbot error:", error);
       const isRateLimit =
@@ -163,258 +231,200 @@ export default function Chatbot() {
 
       if (isRateLimit) {
         setIsBusy(true);
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          text: "I'm a bit busy right now. Please try again in a moment! ⏳"
-        }]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text: "High telemetry load detected. Please allow a brief cooldown period.",
+          },
+        ]);
       } else {
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          text: "Oops, something went wrong. Please try again!"
-        }]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            text: "Connection anomaly. You can reach Eric directly via email at eric.zaragoza27@gmail.com.",
+          },
+        ]);
       }
-
       historyRef.current.pop();
     } finally {
       setLoading(false);
     }
   };
 
-  const c = {
-    primary:         isDark ? "#818cf8" : "#6366f1",
-    chatBg:          isDark ? "#1a202c" : "#ffffff",
-    chatBorder:      isDark ? "#2d3748" : "#e5e7eb",
-    messagesBg:      isDark ? "#1a202c" : "#f3f4f6",
-    assistantBubble: isDark ? "#2d3748" : "#ffffff",
-    assistantText:   isDark ? "#e2e8f0" : "#1f2937",
-    userBubble:      isDark ? "#818cf8" : "#6366f1",
-    userText:        "#ffffff",
-    inputBg:         isDark ? "#2d3748" : "#f3f4f6",
-    inputBorder:     isDark ? "#4a5568" : "#e5e7eb",
-    inputText:       isDark ? "#e2e8f0" : "#1f2937",
-    suggestBg:       isDark ? "#2d3748" : "#eef2ff",
-    suggestBorder:   isDark ? "#818cf8" : "#c7d2fe",
-    suggestText:     isDark ? "#818cf8" : "#6366f1",
-    suggestArea:     isDark ? "#1a202c" : "#f3f4f6",
-    divider:         isDark ? "#2d3748" : "#e5e7eb",
-    typingText:      isDark ? "#718096" : "#9ca3af",
-    shadow:          isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)",
-    statusDot:       isBusy ? "#f59e0b" : "#22c55e",
-    statusText:      isBusy ? "#fcd34d" : "#86efac",
-  };
-
   return (
     <>
-      {isOpen && (
-        <div style={{
-          position: "fixed",
-          bottom: "90px",
-          right: "24px",
-          zIndex: 1000,
-          width: "340px",
-          height: "480px",
-          background: c.chatBg,
-          borderRadius: "16px",
-          boxShadow: `0 8px 32px ${c.shadow}`,
-          display: "flex",
-          flexDirection: "column",
-          border: `1px solid ${c.chatBorder}`,
-          overflow: "hidden",
-          transition: "background 0.3s ease, border-color 0.3s ease"
-        }}>
-
-          {/* Header */}
-          <div style={{
-            padding: "12px 16px",
-            background: `linear-gradient(135deg, ${c.primary}, #8b5cf6)`,
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "10px"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div style={{ position: "relative", flexShrink: 0 }}>
-                <img
-                  src="/eager.jpg"
-                  alt="Eric Zaragoza"
-                  style={{
-                    width: "40px", height: "40px", borderRadius: "50%",
-                    border: "2px solid rgba(255,255,255,0.6)",
-                    objectFit: "cover", display: "block"
-                  }}
-                  onError={e => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
-                  }}
-                />
-                <div style={{
-                  display: "none", width: "40px", height: "40px",
-                  borderRadius: "50%", background: "rgba(255,255,255,0.3)",
-                  border: "2px solid rgba(255,255,255,0.6)",
-                  alignItems: "center", justifyContent: "center",
-                  fontWeight: 700, fontSize: "14px", color: "#fff"
-                }}>
-                  EZ
+      {/* Architectural Floating Modal */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.94 }}
+            transition={{ type: "spring", damping: 26, stiffness: 320 }}
+            className="fixed bottom-24 right-4 sm:right-8 z-[100] w-[calc(100vw-2rem)] sm:w-[410px] h-[580px] max-h-[82vh] rounded-3xl bg-white/95 dark:bg-[#08090e]/95 backdrop-blur-2xl border border-black/15 dark:border-white/15 shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col overflow-hidden text-gray-900 dark:text-white"
+          >
+            {/* Header / Telemetry Bar */}
+            <div className="px-5 py-4 bg-black/5 dark:bg-white/[0.03] border-b border-black/10 dark:border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-full overflow-hidden border border-black/15 dark:border-white/20 bg-black/10 dark:bg-white/10 flex items-center justify-center">
+                    <img
+                      src="/eager.jpg"
+                      alt="Eric Zaragoza"
+                      className="w-full h-full object-cover grayscale contrast-125"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <span
+                    className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-[#08090e] ${
+                      isBusy ? "bg-amber-400" : "bg-[#ccff00]"
+                    }`}
+                  />
                 </div>
-                <div style={{
-                  position: "absolute", bottom: "1px", right: "1px",
-                  width: "11px", height: "11px", borderRadius: "50%",
-                  background: c.statusDot, border: "2px solid #fff",
-                  transition: "background 0.5s ease"
-                }} />
+
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-display font-extrabold text-sm uppercase tracking-tight text-black dark:text-white">
+                      ERIC_AI CONCIERGE
+                    </span>
+                    <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-[#ccff00]/20 text-[#ccff00] font-bold">
+                      v2.6
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-gray-500 dark:text-gray-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ccff00] animate-pulse" />
+                    <span>{currentModel.split("/").pop()?.toUpperCase() || "AI"} // GROQ ENGINE</span>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <div style={{ fontWeight: 600, fontSize: "14px", lineHeight: 1.2 }}>
-                  Eric Zaragoza
-                </div>
-                <div style={{
-                  fontSize: "11px", opacity: 0.9,
-                  display: "flex", alignItems: "center", gap: "4px"
-                }}>
-                  <span style={{ color: c.statusText, transition: "color 0.5s ease" }}>●</span>
-                  {isBusy ? "Busy — try again shortly" : "Online"}
-                </div>
-              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+                aria-label="Close assistant"
+                data-cursor-text="CLOSE"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                background: "rgba(255,255,255,0.15)", border: "none",
-                color: "#fff", width: "28px", height: "28px",
-                borderRadius: "50%", cursor: "pointer", fontSize: "14px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, outline: "none"
-              }}
-            >
-              ✕
-            </button>
-          </div>
+            {/* Conversation Messages */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-transparent font-sans text-xs sm:text-sm">
+              {messages.map((msg, i) => {
+                const isUser = msg.role === "user";
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex flex-col ${
+                      isUser ? "items-end" : "items-start"
+                    }`}
+                  >
+                    <span className="font-mono text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 px-1">
+                      {isUser ? "YOU" : "ASSISTANT // SPEC"}
+                    </span>
+                    <div
+                      className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed font-light ${
+                        isUser
+                          ? "bg-black text-white dark:bg-[#ccff00] dark:text-black font-medium shadow-md"
+                          : "bg-black/5 dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-gray-800 dark:text-gray-200"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </motion.div>
+                );
+              })}
 
-          {/* Messages */}
-          <div style={{
-            flex: 1, overflowY: "auto", padding: "12px",
-            display: "flex", flexDirection: "column", gap: "8px",
-            background: c.messagesBg,
-            transition: "background 0.3s ease"
-          }}>
-            {messages.map((msg, i) => (
-              <div key={i} style={{
-                alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                background: msg.role === "user" ? c.userBubble : c.assistantBubble,
-                color: msg.role === "user" ? c.userText : c.assistantText,
-                padding: "10px 14px",
-                borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-                maxWidth: "82%", fontSize: "13.5px", lineHeight: "1.5",
-                boxShadow: `0 1px 3px ${c.shadow}`,
-                transition: "background 0.3s ease, color 0.3s ease"
-              }}>
-                {msg.text}
-              </div>
-            ))}
+              {loading && (
+                <div className="flex flex-col items-start">
+                  <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest mb-1 px-1">
+                    TRANSMITTING QUERY
+                  </span>
+                  <div className="px-4 py-3 rounded-2xl bg-black/5 dark:bg-white/[0.05] border border-black/10 dark:border-white/10 text-xs font-mono text-[#ccff00] flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#ccff00] animate-ping" />
+                    <span>SYNTHESIZING TELEMETRY...</span>
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
 
-            {loading && (
-              <div style={{
-                alignSelf: "flex-start", background: c.assistantBubble,
-                padding: "10px 14px", borderRadius: "16px 16px 16px 4px",
-                fontSize: "13px", color: c.typingText,
-                boxShadow: `0 1px 3px ${c.shadow}`,
-                transition: "background 0.3s ease"
-              }}>
-                Typing...
+            {/* Suggested Queries */}
+            {messages.length === 1 && (
+              <div className="p-3 bg-black/5 dark:bg-white/[0.02] border-t border-black/10 dark:border-white/10 flex flex-wrap gap-1.5">
+                {SUGGESTED_QUERIES.map((query) => (
+                  <button
+                    key={query}
+                    onClick={() => sendMessage(query)}
+                    className="group px-3 py-1.5 rounded-full font-mono text-[11px] bg-white dark:bg-white/5 hover:bg-[#ccff00] hover:text-black text-gray-700 dark:text-gray-300 border border-black/10 dark:border-white/10 transition-all flex items-center gap-1.5"
+                    data-cursor-text="PROMPT"
+                  >
+                    <span>{query}</span>
+                    <ArrowUpRight className="w-3 h-3 text-gray-400 group-hover:text-black" />
+                  </button>
+                ))}
               </div>
             )}
-            <div ref={bottomRef} />
-          </div>
 
-          {/* Suggested Questions */}
-          {messages.length === 1 && (
-            <div style={{
-              padding: "8px 12px", display: "flex", flexWrap: "wrap", gap: "6px",
-              background: c.suggestArea, borderTop: `1px solid ${c.divider}`,
-              transition: "background 0.3s ease"
-            }}>
-              {["What's his strongest skill?", "Tell me about his e-commerce work", "Is he open to work?"].map((q) => (
-                <button key={q} onClick={() => sendMessage(q)} style={{
-                  fontSize: "11px", padding: "4px 10px", borderRadius: "20px",
-                  border: `1px solid ${c.suggestBorder}`,
-                  background: c.suggestBg, color: c.suggestText, cursor: "pointer",
-                  outline: "none",
-                  transition: "background 0.3s ease, color 0.3s ease"
-                }}>
-                  {q}
+            {/* Input Bar */}
+            <div className="p-3 sm:p-4 bg-black/5 dark:bg-white/[0.02] border-t border-black/10 dark:border-white/10">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendMessage();
+                }}
+                className="flex items-center gap-2"
+              >
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Inquire about Eric's engineering..."
+                    className="w-full pl-4 pr-3 py-3 rounded-full bg-white dark:bg-white/10 border border-black/15 dark:border-white/15 text-xs sm:text-sm font-sans text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[#ccff00] transition-colors"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="w-11 h-11 rounded-full bg-black text-[#ccff00] dark:bg-[#ccff00] dark:text-black flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 transition-all shadow-md flex-shrink-0"
+                  aria-label="Send message"
+                  data-cursor-text="SEND"
+                >
+                  <Send className="w-4 h-4" />
                 </button>
-              ))}
+              </form>
             </div>
-          )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Input */}
-          <div style={{
-            padding: "12px", borderTop: `1px solid ${c.divider}`,
-            display: "flex", gap: "8px", background: c.chatBg,
-            transition: "background 0.3s ease"
-          }}>
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && sendMessage()}
-              placeholder="Type a message..."
-              style={{
-                flex: 1, padding: "9px 14px", borderRadius: "24px",
-                border: `1px solid ${c.inputBorder}`, fontSize: "13.5px",
-                outline: "none", background: c.inputBg, color: c.inputText,
-                transition: "background 0.3s ease, color 0.3s ease, border-color 0.3s ease"
-              }}
-            />
-            <button
-              onClick={() => sendMessage()}
-              disabled={loading}
-              style={{
-                width: "38px", height: "38px", borderRadius: "50%",
-                background: loading ? (isDark ? "#4f46e5" : "#c7d2fe") : c.primary,
-                color: "#fff", border: "none", outline: "none",
-                cursor: loading ? "not-allowed" : "pointer",
-                fontSize: "16px", display: "flex",
-                alignItems: "center", justifyContent: "center", flexShrink: 0,
-                transition: "background 0.3s ease"
-              }}
-            >
-              ↑
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsOpen(prev => !prev)}
-        style={{
-          position: "fixed",
-          bottom: "24px",
-          right: "24px",
-          zIndex: 1000,
-          width: "56px",
-          height: "56px",
-          borderRadius: "50%",
-          background: `linear-gradient(135deg, ${c.primary}, #8b5cf6)`,
-          border: "none",
-          outline: "none",
-          color: "#fff",
-          fontSize: "24px",
-          cursor: "pointer",
-          boxShadow: `0 4px 20px ${isDark ? "rgba(129,140,248,0.4)" : "rgba(99,102,241,0.4)"}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "transform 0.2s ease, background 0.3s ease",
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+      {/* Floating Tactical Trigger Dock */}
+      <motion.button
+        onClick={() => setIsOpen((prev) => !prev)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-6 right-6 z-[90] flex items-center gap-3 px-4 py-3 rounded-full bg-black/90 dark:bg-[#08090e]/95 text-white border border-[#ccff00]/60 shadow-[0_10px_35px_rgba(0,0,0,0.4)] backdrop-blur-xl group transition-all"
+        aria-label="Toggle AI Concierge"
+        data-cursor-text="AI"
       >
-        💬
-      </button>
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ccff00] opacity-75" />
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ccff00]" />
+        </span>
+        <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider font-extrabold text-[#ccff00]">
+          <Terminal className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">AI CONCIERGE</span>
+        </div>
+      </motion.button>
     </>
   );
 }
