@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 const experiences = [
   {
     year: '2025 — NOW',
-    role: 'E-Commerce & Web Engineer',
-    company: 'Love To Dream PH & Mamas & Papas',
-    type: 'Production Role',
-    category: 'E-COMMERCE & WEB ENGINEERING',
+    role: 'Jr. Web Developer',
+    company: 'Bullseye Solutions Inc.',
+    type: 'Full-Time',
+    category: 'E-COMMERCE & WEB DEVELOPING',
     summary:
       'Spearheading WordPress & Shopify technical optimizations for leading consumer brands in the Philippines. Developed custom WooCommerce plugins with regional shipping restrictions and delivery automation, and created dynamic collection-aware Liquid tag filtering.',
     highlights: [
@@ -34,7 +34,7 @@ const experiences = [
   },
   {
     year: '2024',
-    role: 'Mobile App Developer Intern',
+    role: 'Software Engineer - Mobile Developer',
     company: 'Mobile Engineering & Healthcare Systems',
     type: 'Internship',
     category: 'MOBILE ENGINEERING & TELEMETRY',
@@ -49,7 +49,7 @@ const experiences = [
   },
   {
     year: '2020 — 2024',
-    role: 'BS in Computer Engineering',
+    role: 'BS in Information Technology',
     company: 'Polytechnic University of the Philippines',
     type: 'Honors Degree',
     category: 'ACADEMIC FOUNDATION',
