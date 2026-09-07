@@ -49,7 +49,7 @@ const experiences = [
   },
   {
     year: '2020 — 2024',
-    role: 'BS in Computer Engineering',
+    role: 'BS in Information Technology',
     company: 'Polytechnic University of the Philippines',
     type: 'Honors Degree',
     category: 'ACADEMIC FOUNDATION',
