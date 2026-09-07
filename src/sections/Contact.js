@@ -419,7 +419,7 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   disabled={isSending}
-                  placeholder="Jane Doe or Brand Organization"
+                  placeholder="Juan Tamad"
                   className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 text-black dark:text-white font-sans text-sm focus:border-[#ccff00] focus:ring-1 focus:ring-[#ccff00] outline-none transition-colors disabled:opacity-50"
                 />
               </div>
@@ -439,7 +439,7 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   disabled={isSending}
-                  placeholder="jane@domain.com"
+                  placeholder="JuanTamad@domain.com"
                   className="w-full px-5 py-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/10 text-black dark:text-white font-sans text-sm focus:border-[#ccff00] focus:ring-1 focus:ring-[#ccff00] outline-none transition-colors disabled:opacity-50"
                 />
               </div>

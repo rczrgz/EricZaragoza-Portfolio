@@ -107,10 +107,10 @@ const Experience = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.7, delay: idx * 0.1 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start relative group"
+              className="grid grid-cols-1 lg:grid-cols-[30%_1fr] gap-8 lg:gap-0 items-start relative group"
             >
-              {/* Left Side: Large Bold Years & Category */}
-              <div className="lg:col-span-4 lg:text-right">
+              {/* Left Side: Large Bold Years & Category (Adjust lg:pr-* to control spacing to the vertical line) */}
+              <div className="lg:text-right lg:pr-10 xl:pr-12">
                 <div className="inline-flex lg:flex-col lg:items-end gap-2">
                   <span className="font-mono text-xs text-gray-400 dark:text-gray-500 tracking-widest uppercase">
                     ERA 0{idx + 1}
@@ -128,21 +128,22 @@ const Experience = () => {
               </div>
 
               {/* Right Side: Detailed Story & Impact */}
-              <div className="lg:col-span-8 p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#0c0d14] border border-black/15 dark:border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.25)] group-hover:border-[#ccff00]/60 transition-all duration-500 relative">
-                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mb-6 pb-6 border-b border-black/10 dark:border-white/10">
-                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold uppercase tracking-tight text-black dark:text-white">
-                    {exp.role}
-                  </h3>
-                  <span className="font-mono text-sm font-bold text-gray-700 dark:text-gray-300 tracking-wider">
-                    {exp.company}
-                  </span>
-                </div>
+              <div className="lg:pl-10 xl:pl-12">
+                <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#0c0d14] border border-black/15 dark:border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.25)] group-hover:border-[#ccff00]/60 transition-all duration-500 relative">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mb-6 pb-6 border-b border-black/10 dark:border-white/10">
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold uppercase tracking-tight text-black dark:text-white">
+                      {exp.role}
+                    </h3>
+                    <span className="font-mono text-sm font-bold text-gray-700 dark:text-gray-300 tracking-wider">
+                      {exp.company}
+                    </span>
+                  </div>
 
-                <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-light mb-8">
-                  {exp.summary}
-                </p>
+                  <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-light mb-8">
+                    {exp.summary}
+                  </p>
 
-                {/* Key Bullet Highlights */}
+                  {/* Key Bullet Highlights */}
                 <div className="space-y-3 mb-8">
                   <span className="font-mono text-[10px] text-gray-400 uppercase tracking-widest block mb-2">
                     [ PRODUCTION MILESTONES ]
@@ -167,7 +168,8 @@ const Experience = () => {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
           ))}
         </div>
       </div>
