@@ -205,7 +205,7 @@ const Home = () => {
               ERIC
               <br />
               <span className="text-stroke dark:text-stroke text-black/90 dark:text-white/20 hover:text-black dark:hover:text-white hover:text-stroke-thick transition-all duration-500 inline-block mt-1">
-                /&nbsp;ZARAGOZA
+              ZARAGOZA
               </span>
             </motion.h1>
 
