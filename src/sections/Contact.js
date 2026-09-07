@@ -268,7 +268,7 @@ const Contact = () => {
         )}
       </AnimatePresence>
 
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl relative z-10">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl relative z-10">
         {/* Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-xs text-[#ccff00] tracking-[0.25em] uppercase mb-6">
           <span className="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]" />

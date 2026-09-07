@@ -36,7 +36,7 @@ const About = () => {
         ARCHITECT
       </div>
 
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl relative z-10">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl relative z-10">
         {/* Section Header Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-xs text-[#ccff00] tracking-[0.25em] uppercase mb-6">
           <span className="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]" />
@@ -80,7 +80,7 @@ const About = () => {
                 <span className="inline-block px-3 py-1 rounded-full bg-[#ccff00] text-black font-mono text-xs font-black uppercase tracking-wider align-middle shadow-md">
                   ★ Magna Cum Laude
                 </span>{' '}
-                from the Polytechnic University of the Philippines with a BS in Information Technology.
+                from the Polytechnic University of the Philippines with a BS in Computer Engineering.
               </p>
 
               <p>
@@ -222,7 +222,7 @@ const About = () => {
               <div className="mt-4 p-3.5 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between text-xs font-mono text-gray-600 dark:text-gray-300">
                 <span className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-[#ccff00]" />
-                  <span className="font-semibold">BS Information Technology</span>
+                  <span className="font-semibold">BS Computer Engineering</span>
                 </span>
                 <span className="text-[#ccff00] font-black uppercase">HONORS GRADUATE</span>
               </div>

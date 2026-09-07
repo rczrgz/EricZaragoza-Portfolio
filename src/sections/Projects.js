@@ -428,7 +428,7 @@ const Projects = () => {
       id="projects"
       className="py-28 md:py-40 bg-white dark:bg-[#07080c] text-gray-950 dark:text-white transition-colors duration-500 relative overflow-hidden"
     >
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl relative z-10">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl relative z-10">
         {/* Section Header with Monumental Scale & Editorial Metadata */}
         <div className="mb-24 md:mb-36">
           <div className="flex items-center gap-3 font-mono text-xs text-[#ccff00] tracking-[0.3em] uppercase mb-6">

@@ -10,7 +10,7 @@ const Footer = () => {
 
   return (
     <footer className="py-16 bg-white dark:bg-[#050608] text-gray-950 dark:text-white border-t border-black/10 dark:border-white/10 transition-colors duration-500 relative">
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl">
         {/* Giant Monolithic Brand Sign-off */}
         <div className="pb-12 border-b border-black/10 dark:border-white/10 flex flex-col md:flex-row md:items-end justify-between gap-8 select-none">
           <div>

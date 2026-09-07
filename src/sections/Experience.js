@@ -49,7 +49,7 @@ const experiences = [
   },
   {
     year: '2020 — 2024',
-    role: 'BS in Information Technology',
+    role: 'BS in Computer Engineering',
     company: 'Polytechnic University of the Philippines',
     type: 'Honors Degree',
     category: 'ACADEMIC FOUNDATION',
@@ -70,7 +70,7 @@ const Experience = () => {
       id="experience"
       className="py-24 md:py-36 bg-[#f7f8fa] dark:bg-[#090b10] text-gray-950 dark:text-white transition-colors duration-500 relative"
     >
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl">
         {/* Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-xs text-[#ccff00] tracking-[0.25em] uppercase mb-6">
           <span className="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]" />

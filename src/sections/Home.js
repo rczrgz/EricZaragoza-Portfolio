@@ -159,7 +159,7 @@ const Home = () => {
     >
       <SubtleCanvas />
 
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 relative z-10 max-w-7xl flex-1 flex flex-col justify-center">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 relative z-10 max-w-7xl xl:max-w-screen-2xl flex-1 flex flex-col justify-center">
         {/* Top Editorial Eyebrow with Crosshairs */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-10 pb-5 border-b border-black/15 dark:border-white/10 font-mono text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-3">
@@ -200,7 +200,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-7xl sm:text-8xl md:text-9xl lg:text-[10.5vw] xl:text-[12vw] font-black tracking-tighter leading-[0.80] uppercase font-display select-none"
+              className="text-6xl sm:text-7xl md:text-8xl lg:text-8xl xl:text-9xl 2xl:text-[8rem] font-black tracking-tighter leading-[0.82] uppercase font-display select-none"
             >
               ERIC
               <br />
@@ -391,7 +391,7 @@ const Home = () => {
       </div>
 
       {/* Bottom Editorial Ticker / Scroll Prompt */}
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 pt-10 relative z-10 max-w-7xl">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 pt-10 relative z-10 max-w-7xl xl:max-w-screen-2xl">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-black/10 dark:border-white/10 text-xs font-mono text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-3">
             <span className="uppercase tracking-widest text-[#ccff00] font-bold">DISCIPLINES:</span>

@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Code2,
   Cpu,
-  Layers,
   ShoppingBag,
+  Layers,
   Smartphone,
+  Terminal,
+  Palette,
   Database,
-  GitBranch,
   Workflow,
+  Server,
+  GitBranch,
   Sparkles,
 } from 'lucide-react';
 
@@ -64,7 +67,7 @@ const technologies = [
     categoryLabel: 'Core Language',
     level: 'Proficient',
     description: 'Asynchronous event loops, DOM manipulations, modern ES modules, and clean functional programming.',
-    icon: Code2,
+    icon: Terminal,
     projectsUsed: ['All Web Applications'],
   },
   {
@@ -73,7 +76,7 @@ const technologies = [
     categoryLabel: 'Styling & Design Systems',
     level: 'Proficient',
     description: 'Rapid, maintainable utility-first design systems, responsive breakpoints, and dark mode theming.',
-    icon: Layers,
+    icon: Palette,
     projectsUsed: ['Creative Portfolios', 'Client Webstores'],
   },
   {
@@ -100,7 +103,7 @@ const technologies = [
     categoryLabel: 'Backend & Runtime',
     level: 'Competent',
     description: 'Server runtime, microservices, REST API integration, authentication, and package scripts.',
-    icon: Cpu,
+    icon: Server,
     projectsUsed: ['Full-stack Tools', 'Custom API Proxies'],
   },
   {
@@ -136,26 +139,12 @@ const Skills = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [inspectedTech, setInspectedTech] = useState(technologies[0]);
 
-  const filtered =
-    activeCategory === 'all'
-      ? technologies
-      : technologies.filter((t) => t.category === activeCategory);
-
-  // Keep the inspector in sync with the active filter — if the tech on
-  // display disappears from the grid, fall back to the first visible one.
-  useEffect(() => {
-    if (!filtered.some((t) => t.name === inspectedTech?.name)) {
-      setInspectedTech(filtered[0] ?? null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory]);
-
   return (
     <section
       id="skills"
       className="py-24 md:py-36 bg-white dark:bg-[#07080c] text-gray-950 dark:text-white transition-colors duration-500 relative overflow-hidden"
     >
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl relative z-10">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl relative z-10">
         {/* Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-xs text-[#ccff00] tracking-[0.25em] uppercase mb-6">
           <span className="w-2 h-2 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]" />
@@ -176,7 +165,7 @@ const Skills = () => {
             </h2>
           </div>
           <p className="text-sm md:text-base font-mono text-gray-500 dark:text-gray-400 max-w-md leading-relaxed">
-            Calibrated matrix of production-tested languages, frameworks, custom Liquid/WooCommerce logic, and autonomous pipelines. Hover — or tap — any mark to pull its full spec.
+            Calibrated matrix of production-tested languages, frameworks, custom Liquid/WooCommerce logic, and autonomous pipelines.
           </p>
         </div>
       </div>
@@ -221,20 +210,27 @@ const Skills = () => {
       </div>
 
       {/* Main Interactive Grid & Inspector */}
-      <div className="container mx-auto px-6 sm:px-10 lg:px-14 max-w-7xl pt-16">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-10 max-w-7xl xl:max-w-screen-2xl pt-16">
         {/* Category Filters */}
-        <div className="flex flex-wrap gap-2 mb-10 lg:mb-12">
+        <div className="flex flex-wrap gap-2 mb-12">
           {categories.map((c) => {
             const isActive = activeCategory === c.id;
             return (
               <button
                 key={c.id}
-                onClick={() => setActiveCategory(c.id)}
-                className={`relative px-4 py-2 rounded-full font-mono text-xs uppercase tracking-wider transition-colors duration-200 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#07080c] ${
+                onClick={() => {
+                  setActiveCategory(c.id);
+                  if (c.id !== 'all') {
+                    const match = technologies.find((t) => t.category === c.id);
+                    if (match) setInspectedTech(match);
+                  }
+                }}
+                className={`relative px-4 py-2 rounded-full font-mono text-xs uppercase tracking-wider transition-colors duration-200 z-10 ${
                   isActive
                     ? 'text-[#ccff00] dark:text-black font-extrabold'
                     : 'bg-black/5 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white'
                 }`}
+                data-cursor-text="FILTER"
               >
                 {isActive && (
                   <motion.div
@@ -249,111 +245,145 @@ const Skills = () => {
           })}
         </div>
 
-        {/*
-          Layout order flips by breakpoint:
-          - Mobile/tablet: the inspector comes FIRST (order-1) and stays pinned
-            near the top of the viewport, so tapping any icon below always
-            surfaces its spec without a scroll round-trip.
-          - Desktop (lg+): the inspector moves to a sticky right rail
-            (order-2) beside the icon grid, matching a classic hover-detail
-            pattern.
-        */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          {/* Inspector — compact row: mark on the left, spec on the right */}
-          <div className="order-1 lg:order-2 lg:col-span-4 sticky top-20 lg:top-28 z-20">
-            <AnimatePresence mode="wait">
-              {inspectedTech ? (
-                <motion.div
-                  key={inspectedTech.name}
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.18 }}
-                  className="flex items-start gap-3 p-3.5 sm:p-4 rounded-2xl bg-black text-white dark:bg-[#10121a] border border-[#ccff00]/40 shadow-lg"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <div className="p-2.5 rounded-xl bg-white/10 text-[#ccff00] shrink-0">
-                    <inspectedTech.icon className="w-5 h-5" />
-                  </div>
+        {/* 2-Column Suite: 3-Row x 4-Column Icon Matrix on Left, Equal-Height Telemetry Inspector on Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+          {/* Left: 3-Row x 4-Column Icon-Only Matrix */}
+          <div className="lg:col-span-7 grid grid-cols-4 grid-rows-3 gap-3 sm:gap-4 h-full">
+            {technologies.map((tech) => {
+              const Icon = tech.icon;
+              const isInspected = inspectedTech?.name === tech.name;
+              const isDimmed = activeCategory !== 'all' && tech.category !== activeCategory;
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <h4 className="font-display font-bold text-sm sm:text-base uppercase tracking-tight leading-tight truncate">
-                        {inspectedTech.name}
-                      </h4>
-                      <span className="font-mono text-[10px] text-[#ccff00] shrink-0">
+              return (
+                <motion.button
+                  key={tech.name}
+                  onClick={() => setInspectedTech(tech)}
+                  onMouseEnter={() => setInspectedTech(tech)}
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.96 }}
+                  title={tech.name}
+                  aria-label={tech.name}
+                  className={`relative flex items-center justify-center p-3 sm:p-5 rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden group aspect-square ${
+                    isInspected
+                      ? 'bg-black text-[#ccff00] dark:bg-[#10121a] dark:text-[#ccff00] border-[#ccff00] shadow-[0_0_25px_rgba(204,255,0,0.22)] ring-1 ring-[#ccff00]'
+                      : 'bg-[#f8f9fb] dark:bg-[#0c0d13] text-gray-700 dark:text-gray-300 border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30'
+                  } ${isDimmed ? 'opacity-25 grayscale hover:opacity-100 hover:grayscale-0' : 'opacity-100'}`}
+                  data-cursor-text={tech.name.toUpperCase()}
+                >
+                  {/* Subtle Corner Crosshairs */}
+                  <span className="absolute top-2 left-2 text-[9px] font-mono opacity-20 group-hover:opacity-60 transition-opacity">
+                    +
+                  </span>
+                  <span className="absolute top-2 right-2 text-[9px] font-mono opacity-20 group-hover:opacity-60 transition-opacity">
+                    +
+                  </span>
+                  <span className="absolute bottom-2 left-2 text-[9px] font-mono opacity-20 group-hover:opacity-60 transition-opacity">
+                    +
+                  </span>
+                  <span className="absolute bottom-2 right-2 text-[9px] font-mono opacity-20 group-hover:opacity-60 transition-opacity">
+                    +
+                  </span>
+
+                  {/* Active glowing indicator pill */}
+                  {isInspected && (
+                    <span className="absolute bottom-2 w-1.5 h-1.5 rounded-full bg-[#ccff00] shadow-[0_0_8px_#ccff00]" />
+                  )}
+
+                  {/* Icon Only */}
+                  <Icon
+                    className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 transition-transform duration-300 group-hover:scale-110 ${
+                      isInspected
+                        ? 'text-[#ccff00]'
+                        : 'text-gray-600 dark:text-gray-300 group-hover:text-black dark:group-hover:text-white'
+                    }`}
+                  />
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* Right: Telemetry Inspector Card (Height strictly matched to the 3 rows) */}
+          <div className="lg:col-span-5 h-full">
+            <div className="h-full rounded-3xl bg-black text-white dark:bg-[#10121a] border border-[#ccff00]/40 shadow-2xl relative overflow-hidden flex flex-col justify-between p-6 sm:p-8">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-[#ccff00]/10 blur-3xl pointer-events-none rounded-full" />
+
+              {/* Inspector Header */}
+              <div className="flex items-center justify-between text-xs font-mono text-[#ccff00] uppercase tracking-widest pb-4 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse" />
+                  <span>TELEMETRY // SPEC</span>
+                </div>
+                <span className="text-[10px] text-gray-400 font-mono">
+                  ACTIVE SELECTION
+                </span>
+              </div>
+
+              {/* Animated Details */}
+              <AnimatePresence mode="wait">
+                {inspectedTech && (
+                  <motion.div
+                    key={inspectedTech.name}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex-1 flex flex-col justify-between py-6 space-y-6"
+                  >
+                    {/* Technology Identity Banner */}
+                    <div className="flex items-center gap-4">
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 text-[#ccff00] shadow-inner">
+                        <inspectedTech.icon className="w-7 h-7 sm:w-8 sm:h-8" />
+                      </div>
+                      <div>
+                        <h4 className="font-display font-extrabold text-2xl sm:text-3xl uppercase tracking-tight text-white">
+                          {inspectedTech.name}
+                        </h4>
+                        <span className="font-mono text-xs text-[#ccff00]">
+                          {inspectedTech.categoryLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Practical Capabilities */}
+                    <div>
+                      <span className="font-mono text-[10px] text-gray-400 uppercase tracking-wider block mb-1.5">
+                        PRACTICAL CAPABILITIES
+                      </span>
+                      <p className="text-gray-300 text-xs sm:text-sm leading-relaxed font-light">
+                        {inspectedTech.description}
+                      </p>
+                    </div>
+
+                    {/* Applications in Production */}
+                    <div>
+                      <span className="font-mono text-[10px] text-gray-400 uppercase tracking-wider block mb-2">
+                        APPLICATION IN PRODUCTION
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {inspectedTech.projectsUsed.map((p) => (
+                          <span
+                            key={p}
+                            className="px-3 py-1 rounded-full bg-white/10 text-xs font-mono text-[#ccff00] border border-white/5"
+                          >
+                            {p}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Deployment & Level Status Footer */}
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-gray-400">
+                      <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#ccff00]" />
+                        <span>STATUS: DEPLOYED IN PROD</span>
+                      </div>
+                      <span className="text-white font-bold px-2 py-0.5 rounded bg-white/10 text-[10px] tracking-wider uppercase">
                         {inspectedTech.level}
                       </span>
                     </div>
-                    <p className="font-mono text-[10px] text-gray-400 mb-1.5">
-                      {inspectedTech.categoryLabel}
-                    </p>
-                    <p className="text-xs text-gray-300 leading-relaxed">
-                      {inspectedTech.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ) : (
-                <div className="p-4 rounded-2xl border border-dashed border-black/15 dark:border-white/15 text-xs font-mono text-gray-500 dark:text-gray-400 text-center">
-                  Hover or tap a mark to inspect it.
-                </div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Icon-Only Grid */}
-          <div className="order-2 lg:order-1 lg:col-span-8">
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
-              {filtered.map((tech) => {
-                const Icon = tech.icon;
-                const isInspected = inspectedTech?.name === tech.name;
-                const isProficient = tech.level === 'Proficient';
-
-                return (
-                  <motion.button
-                    key={tech.name}
-                    type="button"
-                    onClick={() => setInspectedTech(tech)}
-                    onMouseEnter={() => setInspectedTech(tech)}
-                    onFocus={() => setInspectedTech(tech)}
-                    whileHover={{ y: -3, scale: 1.03 }}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 24 }}
-                    aria-pressed={isInspected}
-                    aria-label={`${tech.name} — ${tech.level}`}
-                    title={`${tech.name} — ${tech.level}`}
-                    className={`group relative aspect-square rounded-2xl border flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#07080c] ${
-                      isInspected
-                        ? 'bg-black text-white dark:bg-[#10121a] border-[#ccff00] shadow-[0_0_20px_rgba(204,255,0,0.18)]'
-                        : 'bg-white dark:bg-[#0c0d13] text-gray-900 dark:text-white border-black/12 dark:border-white/10 shadow-sm hover:shadow-md hover:border-black/25 dark:hover:border-white/30'
-                    }`}
-                  >
-                    {/* Level indicator — hidden until hovered, focused, or selected */}
-                    <span
-                      className={`absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full transition-opacity duration-150 ${
-                        isProficient ? 'bg-[#ccff00]' : 'bg-gray-400 dark:bg-gray-500'
-                      } ${isInspected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}
-                    />
-
-                    <div
-                      className={`p-2.5 sm:p-3 rounded-xl ${
-                        isInspected ? 'bg-white/10' : 'bg-gray-100 dark:bg-white/5'
-                      }`}
-                    >
-                      <Icon
-                        className={`w-5 h-5 sm:w-6 sm:h-6 ${
-                          isInspected ? 'text-[#ccff00]' : 'text-gray-600 dark:text-gray-300'
-                        }`}
-                      />
-                    </div>
-
-                    <span className="font-display font-bold text-[10px] sm:text-xs uppercase tracking-tight text-center leading-tight line-clamp-2">
-                      {tech.name}
-                    </span>
-                  </motion.button>
-                );
-              })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
