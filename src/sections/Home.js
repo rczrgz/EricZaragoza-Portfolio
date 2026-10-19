@@ -5,7 +5,7 @@ import { ArrowDownRight, Sparkles, Code2, Gamepad2, GraduationCap } from 'lucide
 const roles = [
   { id: 'dev', label: 'Programmer', title: 'PROGRAMMER', image: 'programmer.jpg', icon: Code2, desc: 'Clean architecture, modern web stacks & mobile engineering' },
   { id: 'grad', label: 'Zaragoza', title: 'ZARAGOZA', image: 'profile.jpg', icon: GraduationCap, desc: 'PUP Magna Cum Laude graduate & perpetual builder' },
-  { id: 'gamer', label: 'Gamer', title: 'GAMER', image: 'gamer.png', icon: Gamepad2, desc: 'Strategy, tactical focus, and competitive problem solving' },
+  { id: 'gamer', label: 'Gamer', title: 'GAMER', image: 'gamer.jpg', icon: Gamepad2, desc: 'Strategy, tactical focus, and competitive problem solving' },
   { id: 'eager', label: 'Eager to Learn', title: 'EAGER TO LEARN', image: 'eager.jpg', icon: Sparkles, desc: 'Constantly testing bleeding-edge tools & generative AI' },
 ];
 
