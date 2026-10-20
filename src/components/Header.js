@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sun, Moon, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Sun, Moon, ArrowUpRight, Box } from 'lucide-react';
 import { ThemeContext } from '../context/ThemeContext';
 
 const navItems = [
@@ -138,11 +138,11 @@ const Header = () => {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
             ? 'py-3 md:py-4 px-4 sm:px-8'
-            : 'py-6 md:py-8 px-6 sm:px-12'
+            : 'py-6 md:py-8 px-6 sm:px-8 lg:px-10'
         }`}
       >
         <div
-          className={`max-w-7xl mx-auto flex items-center justify-between transition-all duration-500 ${
+          className={`max-w-7xl xl:max-w-screen-2xl mx-auto flex items-center justify-between transition-all duration-500 ${
             isScrolled
               ? 'bg-white/80 dark:bg-[#090b10]/85 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-full px-6 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]'
               : 'bg-transparent'
@@ -207,7 +207,26 @@ const Header = () => {
           </nav>
 
           {/* Right Action & Theme Switch */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* 3D Portfolio Link */}
+            <motion.a
+              href="https://3-d-zaragoza-portfolio.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative p-2 sm:px-3 sm:py-2 rounded-full border border-[#ccff00]/40 dark:border-[#ccff00]/40 bg-[#ccff00]/10 dark:bg-[#ccff00]/10 hover:bg-[#ccff00] text-black dark:text-white hover:text-black dark:hover:text-black hover:border-[#ccff00] shadow-[0_0_15px_rgba(204,255,0,0.15)] hover:shadow-[0_0_20px_rgba(204,255,0,0.45)] transition-all duration-300 flex items-center gap-1.5 group cursor-pointer"
+              title="Experience 3D Interactive Portfolio"
+              data-cursor-text="3D"
+              aria-label="3D Portfolio"
+            >
+              <Box className="w-4 h-4 text-[#88b000] dark:text-[#ccff00] group-hover:text-black transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
+              <span className="font-mono text-xs font-black tracking-wider text-black dark:text-white group-hover:text-black flex items-center gap-1">
+                3D
+                <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </span>
+            </motion.a>
+
             <ThemeToggle />
 
             {/* Quick Contact CTA (Desktop) */}
@@ -287,6 +306,35 @@ const Header = () => {
                   </motion.a>
                 ))}
               </nav>
+
+              {/* Mobile 3D Portfolio Feature Link */}
+              <motion.a
+                href="https://3-d-zaragoza-portfolio.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.4 }}
+                className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-[#ccff00]/30 hover:border-[#ccff00] hover:bg-[#ccff00]/10 transition-all duration-300 group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#ccff00]/15 border border-[#ccff00]/30 flex items-center justify-center text-[#ccff00] group-hover:scale-105 transition-transform">
+                    <Box className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-display font-extrabold text-sm text-white uppercase flex items-center gap-2">
+                      <span>3D Portfolio</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#ccff00] text-black font-black">
+                        3D
+                      </span>
+                    </div>
+                    <div className="font-mono text-[11px] text-gray-400">
+                      Explore Interactive 3D World
+                    </div>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-5 h-5 text-[#ccff00] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </motion.a>
             </div>
 
             <div className="pt-6 border-t border-white/10 flex flex-col gap-3 font-mono text-xs text-gray-400">
